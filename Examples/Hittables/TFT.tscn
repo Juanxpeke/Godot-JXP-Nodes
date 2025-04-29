@@ -1,0 +1,71 @@
+[gd_scene load_steps=10 format=3 uid="uid://d25v87helbhi"]
+
+[ext_resource type="Script" uid="uid://c2v8t0me1gvhh" path="res://addons/JXP_Nodes/Physics/Hittables/JXP_CursorRegistrar.gd" id="1_6hco7"]
+[ext_resource type="Script" uid="uid://pbfe0srs2ka3" path="res://addons/JXP_Nodes/Physics/Hittables/JXP_HittableComponent.gd" id="2_xe3vr"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6hco7"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_h4mw3"]
+sky_material = SubResource("ProceduralSkyMaterial_6hco7")
+
+[sub_resource type="Environment" id="Environment_xe3vr"]
+background_mode = 2
+sky = SubResource("Sky_h4mw3")
+tonemap_mode = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6hco7"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xe3vr"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6hco7"]
+radius = 0.2
+height = 0.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6hco7"]
+radius = 0.2
+height = 0.8
+
+[node name="TFT" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xe3vr")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 3.75, 3.2)
+
+[node name="JXP_CursorRegistrar" type="Node" parent="Camera" node_paths=PackedStringArray("camera")]
+script = ExtResource("1_6hco7")
+camera = NodePath("..")
+ray_collision_mask = 1
+metadata/_custom_type_script = "uid://c2v8t0me1gvhh"
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_6hco7")
+
+[node name="MeshInstance" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_xe3vr")
+
+[node name="Capsule" type="RigidBody3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0.7, 0)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="Capsule"]
+shape = SubResource("CapsuleShape3D_6hco7")
+
+[node name="MeshInstance" type="MeshInstance3D" parent="Capsule"]
+mesh = SubResource("CapsuleMesh_6hco7")
+
+[node name="JXP_HittableComponent" type="Node" parent="Capsule" node_paths=PackedStringArray("collision_object")]
+script = ExtResource("2_xe3vr")
+collision_object = NodePath("..")
+pickable = true
+metadata/_custom_type_script = "uid://pbfe0srs2ka3"

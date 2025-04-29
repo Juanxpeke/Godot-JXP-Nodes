@@ -1,0 +1,93 @@
+[gd_scene load_steps=13 format=3 uid="uid://b57wno7vjsmkw"]
+
+[ext_resource type="Script" uid="uid://ccgxgika827ue" path="res://Examples/Hittables/FPS_Player.gd" id="1_02g81"]
+[ext_resource type="Script" uid="uid://k20fjoq0p27i" path="res://addons/JXP_Nodes/Physics/Hittables/JXP_HittableRayCast.gd" id="2_43g5a"]
+[ext_resource type="Script" uid="uid://pbfe0srs2ka3" path="res://addons/JXP_Nodes/Physics/Hittables/JXP_HittableComponent.gd" id="3_fb6jm"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fb6jm"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_fb6jm"]
+sky_material = SubResource("ProceduralSkyMaterial_fb6jm")
+
+[sub_resource type="Environment" id="Environment_jsixd"]
+background_mode = 2
+sky = SubResource("Sky_fb6jm")
+tonemap_mode = 2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_02g81"]
+radius = 0.35
+height = 1.6
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_43g5a"]
+radius = 0.35
+height = 1.6
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_43g5a"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_43g5a"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_43g5a"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_fb6jm"]
+
+[node name="FPS" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_jsixd")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="FPS_Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+script = ExtResource("1_02g81")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="FPS_Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_02g81")
+
+[node name="MeshInstance" type="MeshInstance3D" parent="FPS_Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CapsuleMesh_43g5a")
+
+[node name="HeadPivot" type="Node3D" parent="FPS_Player"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
+
+[node name="Camera" type="Camera3D" parent="FPS_Player/HeadPivot"]
+current = true
+
+[node name="JXP_HittableRayCast" type="RayCast3D" parent="FPS_Player/HeadPivot"]
+unique_name_in_owner = true
+target_position = Vector3(0, 0, -2)
+script = ExtResource("2_43g5a")
+metadata/_custom_type_script = "uid://k20fjoq0p27i"
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_43g5a")
+
+[node name="MeshInstance" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_43g5a")
+
+[node name="Ball" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -3.5)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="Ball"]
+shape = SubResource("SphereShape3D_43g5a")
+
+[node name="MeshInstance" type="MeshInstance3D" parent="Ball"]
+mesh = SubResource("SphereMesh_fb6jm")
+
+[node name="JXP_HittableComponent" type="Node" parent="Ball" node_paths=PackedStringArray("collision_object", "mesh_instance")]
+script = ExtResource("3_fb6jm")
+collision_object = NodePath("..")
+mesh_instance = NodePath("../MeshInstance")
+pickable = true
+metadata/_custom_type_script = "uid://pbfe0srs2ka3"
