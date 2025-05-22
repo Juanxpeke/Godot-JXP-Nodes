@@ -1,7 +1,22 @@
-[gd_scene load_steps=7 format=3 uid="uid://cmcdmhkc54l3w"]
+[gd_scene load_steps=13 format=3 uid="uid://cmcdmhkc54l3w"]
 
 [ext_resource type="Material" uid="uid://bbpy4vy48u2us" path="res://addons/JXP_Nodes/Assets/Outlines/RimEffectOutline.material" id="1_11xom"]
+[ext_resource type="Material" uid="uid://4y6a0cc654rr" path="res://addons/JXP_Nodes/Assets/Outlines/VertexExtrusion.material" id="1_y4ig2"]
+[ext_resource type="ArrayMesh" uid="uid://cyyh7g2836lqf" path="res://Assets/Models/Cubes/DefaultCube.obj" id="2_nee07"]
 [ext_resource type="PackedScene" uid="uid://dbi14hje4sfij" path="res://Assets/Models/Captain/Characters_Captain_Barbarossa.gltf" id="4_0nhab"]
+[ext_resource type="Script" uid="uid://dycxh1or1whty" path="res://addons/JXP_Nodes/Assets/Outlines/JXP_NormalSmoother.gd" id="4_xik1x"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xik1x"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_nee07"]
+sky_material = SubResource("ProceduralSkyMaterial_xik1x")
+
+[sub_resource type="Environment" id="Environment_0nhab"]
+background_mode = 2
+sky = SubResource("Sky_nee07")
+tonemap_mode = 2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xgeco"]
 albedo_color = Color(0, 0, 0, 1)
@@ -17,9 +32,21 @@ material = SubResource("StandardMaterial3D_11xom")
 
 [node name="Outline" type="Node3D"]
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0nhab")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
 [node name="Cube" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("1_11xom")
+material_overlay = ExtResource("1_y4ig2")
 mesh = SubResource("BoxMesh_6eh0r")
+
+[node name="Cube2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.16297, 0, 0)
+material_overlay = ExtResource("1_y4ig2")
+mesh = ExtResource("2_nee07")
 
 [node name="Sphere" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.13284, 0, 0)
@@ -27,4 +54,48 @@ material_overlay = ExtResource("1_11xom")
 mesh = SubResource("SphereMesh_11xom")
 
 [node name="Characters_Captain_Barbarossa" parent="." instance=ExtResource("4_0nhab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.47558, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.93657, 0, 0)
+
+[node name="Skeleton3D" parent="Characters_Captain_Barbarossa/CharacterArmature" index="0"]
+bones/1/rotation = Quaternion(1.16934e-05, 0.705806, 0.708405, 1.2001e-05)
+bones/4/rotation = Quaternion(0.140527, 4.3368e-07, 8.67897e-08, 0.990077)
+bones/5/rotation = Quaternion(0.028224, -8.32001e-07, 6.3121e-09, 0.999602)
+bones/6/rotation = Quaternion(-0.0169621, 1.0355e-06, -7.24207e-09, 0.999856)
+bones/7/rotation = Quaternion(-0.0395617, -0.000275617, 1.08545e-05, 0.999217)
+bones/8/rotation = Quaternion(-0.16003, 0.0574451, -0.393693, 0.90338)
+bones/9/rotation = Quaternion(-0.270263, -0.502646, -0.455701, 0.683112)
+bones/10/rotation = Quaternion(-0.0379008, 0.0131095, -0.590476, 0.806058)
+bones/12/rotation = Quaternion(-0.16003, -0.0574446, 0.393693, 0.90338)
+bones/13/rotation = Quaternion(-0.440416, 0.4438, 0.548803, 0.554879)
+bones/14/rotation = Quaternion(-0.0278166, -0.257297, 0.220066, 0.940529)
+bones/15/rotation = Quaternion(0.0844514, -0.0962608, -0.305922, 0.943405)
+bones/16/rotation = Quaternion(-0.197954, 0.0664567, 0.162131, 0.964423)
+bones/17/rotation = Quaternion(-0.0469384, -0.000447918, 0.0162341, 0.998766)
+bones/18/rotation = Quaternion(0.116623, -0.000140643, -0.0565425, 0.991565)
+bones/19/rotation = Quaternion(-0.0362348, 0.957105, -0.0824095, -0.2754)
+bones/20/rotation = Quaternion(-0.0421568, 0.948937, 0.166281, 0.264747)
+bones/22/rotation = Quaternion(0.189662, -0.13759, 0.182878, 0.954805)
+bones/23/rotation = Quaternion(-0.179968, 0.156479, -0.0928936, 0.966694)
+bones/24/rotation = Quaternion(-0.0775169, -0.00277346, 0.0116796, 0.996919)
+bones/25/rotation = Quaternion(0.461898, -0.425382, 0.401259, 0.666852)
+bones/26/rotation = Quaternion(-0.18803, 0.585197, -0.10877, 0.781254)
+bones/27/rotation = Quaternion(0.923771, 0.00676975, 0.00374277, 0.382868)
+bones/28/rotation = Quaternion(0.680485, 0.00682315, 0.00705541, 0.732696)
+bones/29/rotation = Quaternion(0.923771, -0.00676996, -0.00374196, 0.382868)
+bones/30/rotation = Quaternion(0.680485, -0.00682313, -0.00705539, 0.732696)
+
+[node name="Weapon_Cutlass" parent="Characters_Captain_Barbarossa/CharacterArmature/Skeleton3D" index="0"]
+transform = Transform3D(0.461234, 0.544489, 0.700567, 0.879069, -0.173267, -0.44409, -0.120417, 0.820676, -0.55856, -0.549392, 0.264037, -0.115372)
+
+[node name="Captain_Barbarossa " parent="Characters_Captain_Barbarossa/CharacterArmature/Skeleton3D" index="1"]
+material_overlay = ExtResource("1_y4ig2")
+
+[node name="JXP_NormalSmoother" type="Node" parent="." node_paths=PackedStringArray("meshes_root")]
+script = ExtResource("4_xik1x")
+meshes_root = NodePath("../Characters_Captain_Barbarossa")
+metadata/_custom_type_script = "uid://dycxh1or1whty"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-0.999881, -0.00127732, 0.0153752, 2.93012e-09, 0.996567, 0.0827908, -0.0154281, 0.082781, -0.996448, -1.00836, 0.311648, -3.10551)
+
+[editable path="Characters_Captain_Barbarossa"]
