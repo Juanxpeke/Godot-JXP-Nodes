@@ -1,10 +1,10 @@
 [gd_scene load_steps=13 format=3 uid="uid://cmcdmhkc54l3w"]
 
-[ext_resource type="Material" uid="uid://bbpy4vy48u2us" path="res://addons/JXP_Nodes/Assets/Outlines/RimEffectOutline.material" id="1_11xom"]
-[ext_resource type="Material" uid="uid://4y6a0cc654rr" path="res://addons/JXP_Nodes/Assets/Outlines/VertexExtrusion.material" id="1_y4ig2"]
+[ext_resource type="Material" uid="uid://bbpy4vy48u2us" path="res://Assets/Materials/RimEffectOutline.material" id="1_11xom"]
+[ext_resource type="Material" uid="uid://4y6a0cc654rr" path="res://Assets/Materials/VertexExtrusion.material" id="1_y4ig2"]
 [ext_resource type="ArrayMesh" uid="uid://cyyh7g2836lqf" path="res://Assets/Models/Cubes/DefaultCube.obj" id="2_nee07"]
 [ext_resource type="PackedScene" uid="uid://dbi14hje4sfij" path="res://Assets/Models/Captain/Characters_Captain_Barbarossa.gltf" id="4_0nhab"]
-[ext_resource type="Script" uid="uid://dycxh1or1whty" path="res://addons/JXP_Nodes/Assets/Outlines/JXP_NormalSmoother.gd" id="4_xik1x"]
+[ext_resource type="Script" uid="uid://dycxh1or1whty" path="res://addons/JXP_Nodes/Graphics/Geometry/JXP_NormalSmoother.gd" id="4_xik1x"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xik1x"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -85,14 +85,14 @@ bones/29/rotation = Quaternion(0.923771, -0.00676996, -0.00374196, 0.382868)
 bones/30/rotation = Quaternion(0.680485, -0.00682313, -0.00705539, 0.732696)
 
 [node name="Weapon_Cutlass" parent="Characters_Captain_Barbarossa/CharacterArmature/Skeleton3D" index="0"]
-transform = Transform3D(0.461234, 0.544489, 0.700567, 0.879069, -0.173267, -0.44409, -0.120417, 0.820676, -0.55856, -0.549392, 0.264037, -0.115372)
+transform = Transform3D(0.461236, 0.544489, 0.700565, 0.879068, -0.173268, -0.444092, -0.120418, 0.820676, -0.558561, -0.549392, 0.264038, -0.115372)
 
 [node name="Captain_Barbarossa " parent="Characters_Captain_Barbarossa/CharacterArmature/Skeleton3D" index="1"]
 material_overlay = ExtResource("1_y4ig2")
 
 [node name="JXP_NormalSmoother" type="Node" parent="." node_paths=PackedStringArray("meshes_root")]
 script = ExtResource("4_xik1x")
-meshes_root = NodePath("../Characters_Captain_Barbarossa")
+meshes_root = NodePath("../Characters_Captain_Barbarossa/CharacterArmature/Skeleton3D/Captain_Barbarossa ")
 metadata/_custom_type_script = "uid://dycxh1or1whty"
 
 [node name="Camera3D" type="Camera3D" parent="."]

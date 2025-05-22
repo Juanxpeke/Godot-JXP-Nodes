@@ -1,3 +1,4 @@
+@tool
 class_name JXP_NormalSmoother extends Node
 ## Docstring
 
