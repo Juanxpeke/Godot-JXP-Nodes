@@ -123,7 +123,7 @@ func _pick_last_hittable_component() -> void:
 
 func _unpick_last_hittable_component() -> void:
 	picking = false
-	last_hittable_component.unregister_pick()
+	last_hittable_component.register_unpick()
 
 func _update_pick_target_position() -> void:
 	var raw_pick_target_position : Vector3

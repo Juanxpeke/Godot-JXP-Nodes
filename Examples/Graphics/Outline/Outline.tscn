@@ -1,0 +1,30 @@
+[gd_scene load_steps=7 format=3 uid="uid://cmcdmhkc54l3w"]
+
+[ext_resource type="Material" uid="uid://bbpy4vy48u2us" path="res://addons/JXP_Nodes/Assets/Outlines/RimEffectOutline.material" id="1_11xom"]
+[ext_resource type="PackedScene" uid="uid://dbi14hje4sfij" path="res://Assets/Models/Captain/Characters_Captain_Barbarossa.gltf" id="4_0nhab"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xgeco"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6eh0r"]
+material = SubResource("StandardMaterial3D_xgeco")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_11xom"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_11xom"]
+material = SubResource("StandardMaterial3D_11xom")
+
+[node name="Outline" type="Node3D"]
+
+[node name="Cube" type="MeshInstance3D" parent="."]
+material_overlay = ExtResource("1_11xom")
+mesh = SubResource("BoxMesh_6eh0r")
+
+[node name="Sphere" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.13284, 0, 0)
+material_overlay = ExtResource("1_11xom")
+mesh = SubResource("SphereMesh_11xom")
+
+[node name="Characters_Captain_Barbarossa" parent="." instance=ExtResource("4_0nhab")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.47558, 0, 0)

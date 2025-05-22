@@ -39,7 +39,6 @@ const CROUCHING_LOCKED_CHECK_DELTA_TIME      : float = 0.05
 
 #region On Ready Variables
 @onready var _head_pivot : Node3D = %HeadPivot
-@onready var _eyes_ray_cast : JXP_HittableRayCast = %JXP_HittableRayCast
 #endregion On Ready Variables
 
 #region Built-in Virtual Methods

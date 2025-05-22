@@ -12,17 +12,17 @@ signal stopped_hitting
 signal hit_registered(hittable_component : JXP_HittableComponent)
 ## Emitted when this node unhits an object that has a [JXP_HittableComponent]. Use this signal
 ## for global logic. For per-object logic, use [signal JXP_HittableComponent.unhit] instead.
-signal hit_unregistered
+signal unhit_registered
 ## TODO
 signal event_press_registered(hittable_component : JXP_HittableComponent, event : InputEvent)
 ## TODO
-signal event_press_unregistered(hittable_component : JXP_HittableComponent, event : InputEvent)
+signal event_released_registered(hittable_component : JXP_HittableComponent, event : InputEvent)
 ## TODO
 signal interaction_registered
 ## TODO
 signal pick_registered
 ## TODO
-signal pick_unregistered
+signal unpick_registered
 #endregion Signals
 
 #region Enums
@@ -48,7 +48,7 @@ var last_collider : CollisionObject3D = null
 var last_hittable_component : JXP_HittableComponent = null:
 	set(new_last_hittable_component):
 		if last_hittable_component:
-			hit_unregistered.emit(last_hittable_component)
+			unhit_registered.emit(last_hittable_component)
 		
 		last_hittable_component = new_last_hittable_component
 		
@@ -63,7 +63,7 @@ var picking : bool:
 		if picking:
 			pick_registered.emit()
 		else:
-			pick_unregistered.emit()
+			unpick_registered.emit()
 #endregion Public Variables
 
 #region Private Variables
@@ -75,7 +75,6 @@ var _pick_target_position : Vector3
 
 #region Built-in Virtual Methods
 func _enter_tree() -> void:
-	push_error()
 	assert(InputMap.has_action(pick_action), "Action %s is not defined in Input Map." % pick_action)
 	assert(InputMap.has_action(interact_action), "Action %s is not defined in Input Map." % interact_action)
 
@@ -97,9 +96,11 @@ func _input(event : InputEvent) -> void:
 		return
 	
 	if event.is_pressed():
+		last_hittable_component.register_event_pressed(event)
 		event_press_registered.emit(last_hittable_component, event)
 	elif event.is_released():
-		event_press_unregistered.emit(last_hittable_component, event)
+		last_hittable_component.register_event_released(event)
+		event_released_registered.emit(last_hittable_component, event)
 	
 	if last_hittable_component.interactable and event.is_action_pressed(interact_action):
 		last_hittable_component.register_interaction()
@@ -138,12 +139,12 @@ func _update_last_hittable_component() -> void:
 			last_hittable_component.register_hit()
 
 func _pick_last_hittable_component() -> void:
-	picking = true
 	last_hittable_component.register_pick(_pick_target_position)
+	picking = true
 
 func _unpick_last_hittable_component() -> void:
+	last_hittable_component.register_unpick()
 	picking = false
-	last_hittable_component.unregister_pick()
 
 func _get_hittable_component(node : Node3D) -> JXP_HittableComponent:
 	if node != null and node.has_meta("JXP_HittableComponentPath"):

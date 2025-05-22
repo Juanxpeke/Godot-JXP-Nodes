@@ -11,9 +11,9 @@ signal hit
 ## [b]Note:[/b] This signal won't be emitted when [member collision_object] is freed.
 signal unhit
 ## TODO
-signal event_pressed
+signal event_pressed(event : InputEvent)
 ## TODO
-signal event_released
+signal event_released(event : InputEvent)
 ## Emitted when [member collision_object] is interacted with.
 ## Requires [member interactable] to be set to [code]true[/code].
 ## See also [member interactable].
@@ -144,6 +144,12 @@ func unregister_hit() -> void:
 	
 	unhit.emit()
 ## TODO
+func register_event_pressed(event : InputEvent) -> void:
+	event_pressed.emit(event)
+## TODO
+func register_event_released(event : InputEvent) -> void:
+	event_released.emit(event)
+## TODO
 func register_interaction() -> void:
 	if interact_sound:
 		pass
@@ -180,7 +186,7 @@ func register_pick(hand_position : Vector3) -> void:
 	
 	picked.emit()
 ## TODO
-func unregister_pick() -> void:
+func register_unpick() -> void:
 	being_picked = false
 	
 	var object : RigidBody3D = collision_object as RigidBody3D
