@@ -36,12 +36,13 @@ func _ready() -> void:
 #endregion Public Methods
 
 #region Private Methods
-func _inspect_node(node : Node) -> void:
+func _inspect_node(node : Node, recursive : bool = true) -> void:
 	if node is MeshInstance3D and node.mesh is ArrayMesh and not node.mesh.has_meta("JXP_NormalSmoothed"):
 		_normal_smooth(node.mesh)
 	
-	for child in node.get_children():
-		_inspect_node(child)
+	if recursive:
+		for child in node.get_children():
+			_inspect_node(child)
 
 func _normal_smooth(mesh : ArrayMesh) -> void:
 	var surface_count : int = mesh.get_surface_count()

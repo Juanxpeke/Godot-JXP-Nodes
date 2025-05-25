@@ -1,0 +1,32 @@
+[gd_scene load_steps=7 format=3 uid="uid://cmcdmhkc54l3w"]
+
+[ext_resource type="Script" uid="uid://m8b3opx3aelv" path="res://Examples/Graphics/Outlines/Outlines.gd" id="1_54deu"]
+[ext_resource type="Material" uid="uid://baigqxai46u52" path="res://Assets/Materials/DepthTest.material" id="2_wb0pl"]
+[ext_resource type="Script" uid="uid://dycxh1or1whty" path="res://addons/JXP_Nodes/Graphics/Geometry/JXP_NormalSmoother.gd" id="5_s8cxh"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xik1x"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_nee07"]
+sky_material = SubResource("ProceduralSkyMaterial_xik1x")
+
+[sub_resource type="Environment" id="Environment_0nhab"]
+background_mode = 2
+sky = SubResource("Sky_nee07")
+tonemap_mode = 2
+
+[node name="Outlines" type="Node3D"]
+script = ExtResource("1_54deu")
+outline_material = ExtResource("2_wb0pl")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_0nhab")
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="JXP_NormalSmoother" type="Node" parent="."]
+script = ExtResource("5_s8cxh")
+metadata/_custom_type_script = "uid://dycxh1or1whty"
