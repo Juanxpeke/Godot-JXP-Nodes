@@ -15,6 +15,10 @@ run/main_scene="uid://b57wno7vjsmkw"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=648
+
 [editor]
 
 script/templates_search_path="res://ScriptTemplates"
@@ -59,3 +63,7 @@ interact={
 [physics]
 
 3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+anti_aliasing/quality/msaa_3d=3

@@ -1,6 +1,5 @@
-@tool
 class_name JXP_NormalSmoother extends Node
-## Docstring
+## Container of static functions used for normal smoothing.
 
 #region Signals
 #endregion Signals
@@ -12,39 +11,25 @@ class_name JXP_NormalSmoother extends Node
 #endregion Constants
 
 #region Exports Variables
-## TODO.
-@export var meshes_root : Node = null
 #endregion Exports Variables
 
-#region Public Variables
-#endregion Public Variables
+#region Static Variables
+static var _mdt : MeshDataTool
+#endregion Static Variables
 
-#region Private Variables
-var _mdt := MeshDataTool.new()
-#endregion Private Variables
-
-#region On Ready Variables
-#endregion On Ready Variables
-
-#region Built-in Virtual Methods
-func _ready() -> void:
-	if meshes_root:
-		_inspect_node(meshes_root)
-#endregion Built-in Virtual Methods
-
-#region Public Methods
-#endregion Public Methods
-
-#region Private Methods
-func _inspect_node(node : Node, recursive : bool = true) -> void:
+#region Static Methods
+static func smooth_node(node : Node, recursive : bool = true) -> void:
 	if node is MeshInstance3D and node.mesh is ArrayMesh and not node.mesh.has_meta("JXP_NormalSmoothed"):
-		_normal_smooth(node.mesh)
+		JXP_NormalSmoother.normal_smooth(node.mesh)
 	
 	if recursive:
 		for child in node.get_children():
-			_inspect_node(child)
+			smooth_node(child)
 
-func _normal_smooth(mesh : ArrayMesh) -> void:
+static func normal_smooth(mesh : ArrayMesh) -> void:
+	if _mdt == null:
+		_mdt = MeshDataTool.new()
+	
 	var surface_count : int = mesh.get_surface_count()
 	
 	for surface_index in surface_count:
@@ -94,4 +79,4 @@ func _normal_smooth(mesh : ArrayMesh) -> void:
 		st.commit(mesh)
 	
 	mesh.set_meta("JXP_NormalSmoothed", true)
-#endregion Private Methods
+#endregion Static Methods

@@ -48,10 +48,15 @@ func _init() -> void:
 	var pirate_packed_scene : PackedScene = load("uid://dbi14hje4sfij")
 	var pirate_root_node := pirate_packed_scene.instantiate()
 	_nodes.add_child(pirate_root_node)
+	
+	var couch_packed_scene : PackedScene = load("uid://difkimhpps4kb")
+	var couch_root_node := couch_packed_scene.instantiate()
+	_nodes.add_child(couch_root_node)
 
 func _ready() -> void:
 	for i in _nodes.get_child_count():
 		_nodes.get_child(i).global_position = Vector3(i * 2.5, 0, 0)
+		JXP_NormalSmoother.smooth_node(_nodes.get_child(i))
 #endregion Built-in Virtual Methods
 
 #region Public Methods
