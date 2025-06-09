@@ -1,13 +1,11 @@
+#pragma disable_preprocessor
 /**
  * Reinvention of Alexander Ameye's code. See https://ameye.dev/notes/rendering-outlines/
  * 
  * This shader computes an angle factor based on the angle between the pixel's normal and the view
- * direction (from the camera to the pixel).
- * 
- * When this angle is close to 0, the normal is facing the camera directly, so the angle factor is
- * near 0 — meaning the pixel is likely not part of the outline. As the angle approaches 90 degrees
- * or more, the normal becomes perpendicular to the view direction, and the angle factor approaches
- * 1 — indicating the pixel is likely part of the outline.
+ * direction (from the camera to the pixel). When this angle is close to 0, the normal is facing the
+ * camera directly, so the angle factor is near 0. As the angle approaches 90 degrees or more, the
+ * normal becomes perpendicular to the view direction, and the angle factor approaches 1.
  *
  * As Alexander's mentions in his article, this shader only works correctly on extremely smooth
  * objects, such as a sphere.
@@ -23,11 +21,11 @@ const float DELTA = 0.0001f;
  */
 uniform vec4 outline_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
 /**
- * Width that determines the proportion of the object to be outlined, based on pixel normals and the view direction.
+ * Width of the outline. Determines the proportion of the object to be outlined, based on pixel normals and the view direction.
  */
 uniform float outline_width : hint_range(0, 1) = 0.25f;
 /**
- * Determines the how much the outline opacity will be decreased.
+ * Softness of the outline. Determines how much the outline opacity will be decreased.
  */
 uniform float outline_softness : hint_range(0, 1) = 0.0f;
 /**
