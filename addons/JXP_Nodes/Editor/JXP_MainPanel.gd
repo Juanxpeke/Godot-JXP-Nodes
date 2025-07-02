@@ -1,8 +1,13 @@
 @tool
-extends PanelContainer
-## Docstring
+class_name JXP_MainPanel extends PanelContainer
+## Main screen panel for the plugin.
+##
+## This panel should be shown in the central part of the editor, next to the [b]2D[/b], [b]3D[/b],
+## [b]Script[/b], [b]Game[/b], and [b]AssetLib[/b] buttons.
 
-# TODO: 1. Plugin Editor Filters 2. Plugin Editor Localization 3. Plugin Editor Tooltips
+# Most of the code in this script follows the logic used in the Godot engine itself, specifically,
+# in the editor_sectioned_inspector.cpp file.
+# TODO: 1. Plugin Editor Filters 2. Plugin Editor Tooltips
 
 #region Signals
 #endregion Signals
@@ -101,7 +106,7 @@ func _get_panel_style_box() -> StyleBox:
 	panel_style_box.content_margin_right = 4
 	panel_style_box.content_margin_bottom = 4
 	return panel_style_box
-
+#region User Interface
 func _create_sectioned_inspector() -> HSplitContainer:
 	var sectioned_inspector := HSplitContainer.new()
 	sectioned_inspector.add_theme_constant_override("autohide", 1) # Fixes the dragger always showing up
@@ -125,6 +130,7 @@ func _create_sectioned_inspector() -> HSplitContainer:
 	_editor_inspector = EditorInspector.new()
 	_editor_inspector.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_editor_inspector.property_edited.connect(_on_editor_inspector_property_edited)
+	_editor_inspector.restart_requested.connect(func(): ) # TODO
 	right_vb.add_child(_editor_inspector, true)
 	
 	return sectioned_inspector
@@ -141,7 +147,11 @@ func _update_sections_tree() -> void:
 	_section_map[""] = root
 	
 	for property in _plugin_settings.get_property_list():
-		# TODO: Discard property logic
+		# TODO: Complete discard property logic
+		if property.usage & PROPERTY_USAGE_CATEGORY:
+			continue
+		if not property.usage & PROPERTY_USAGE_EDITOR:
+			continue
 		
 		# If the property name is "a/b/c", we say "a", "b" and "c" are sections
 		var sectionarr : PackedStringArray = property.name.split("/")
@@ -179,6 +189,7 @@ func _update_sections_tree() -> void:
 	# filters line edit), and it's in this new filtered tree, we go back to it
 	if _section_map.has(_selected_section):
 		_section_map[_selected_section].select(0)
+#endregion User Interface
 #region Utility
 var _capitalize_string_remaps : Dictionary = {
 	"jxp": "JXP",

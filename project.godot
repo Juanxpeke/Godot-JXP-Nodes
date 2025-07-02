@@ -59,8 +59,7 @@ interact={
 [jxp_nodes]
 
 installation/godot_version="Holaadfsddfxxxa"
-physics/hittables/outline_shader=43
-help="Holaaaaa"
+physics_3d/hittables/outline_shader=32
 
 [physics]
 

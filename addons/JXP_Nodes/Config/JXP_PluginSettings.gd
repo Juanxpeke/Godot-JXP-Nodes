@@ -1,21 +1,16 @@
 class_name JXP_PluginSettings extends Object
-## Docstring
-
+## Object that stores all the plugin settings.
+##
+## This object is designed to be passed to a [EditorInspector]. It is also synchronized with the 
+## global project settings. See [ProjectSettings].
 #region Signals
 #endregion Signals
 
 #region Enums
-## TODO.
-enum SettingVisibility {
-	NONE             = 1 >> 1,
-	PROJECT_SETTINGS = 1 << 0,
-	PLUGIN_SETTINGS  = 1 << 1,
-	ALL              = PROJECT_SETTINGS | PLUGIN_SETTINGS
-}
 #endregion Enums
 
 #region Constants
-## TODO.
+## Prefix applied to every setting's name.
 const SETTING_PREFIX := "jxp_nodes/"
 #endregion Constants
 
@@ -24,41 +19,26 @@ const SETTING_PREFIX := "jxp_nodes/"
 
 #region Private Variables
 var _settings := {
-	"help": {
-		"type": TYPE_STRING,
-		"hint": PROPERTY_HINT_NONE,
-		"hint_string": "",
-		"basic": true,
-		"visibility": SettingVisibility.PROJECT_SETTINGS,
-		"default": "Holaa",
-		"restart_if_changed": true,
-	},
 	"installation/godot_version": {
 		"type": TYPE_STRING,
 		"hint": PROPERTY_HINT_NONE,
 		"hint_string": "",
-		"basic": true,
-		"visibility": SettingVisibility.PROJECT_SETTINGS,
-		"default": "Holaa",
-		"restart_if_changed": true,
+		"usage": PROPERTY_USAGE_INTERNAL,
+		"default": "Holaa"
 	},
 	"installation/physics/hittables":{
 		"type": TYPE_BOOL,
 		"hint": PROPERTY_HINT_NONE,
 		"hint_string": "",
-		"basic": true,
-		"visibility": SettingVisibility.PROJECT_SETTINGS,
-		"default": true,
-		"restart_if_changed": false,
+		"usage": PROPERTY_USAGE_INTERNAL,
+		"default": true
 	},
-	"physics/hittables/outline_shader": {
+	"physics_3d/hittables/outline_shader": {
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_RANGE,
 		"hint_string": "0,100,1",
-		"basic": true,
-		"visibility": SettingVisibility.ALL,
-		"default": 99,
-		"restart_if_changed": false,
+		"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_EDITOR_BASIC_SETTING,
+		"default": 99
 	}
 }
 #endregion Private Variables
@@ -71,13 +51,13 @@ func _init() -> void:
 func _get_property_list() -> Array:
 	var properties := []
 	for raw_setting_name in _settings.keys():
-		var setting = _settings[raw_setting_name]
+		var setting : Dictionary = _settings[raw_setting_name] 
 		properties.append({
 			"name": raw_setting_name,
 			"type": setting.type,
 			"hint": setting.hint,
 			"hint_string": setting.hint_string,
-			"usage": PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE
+			"usage": setting.usage
 		})
 	return properties
 # NOTE: Only necessary for the plugin settings interface
@@ -111,7 +91,7 @@ func _remove_deprecated_project_settings() -> void:
 	for setting in ProjectSettings.get_property_list():
 		if setting.name.contains(SETTING_PREFIX) and not setting.name.replace(SETTING_PREFIX, "") in _settings:
 			ProjectSettings.set_setting(setting.name, null)
-			push_warning("(JXP Nodes) Removed deprecated setting %s found in project settings" % [setting.name])
+			push_warning("[JXP Nodes] Removed deprecated setting %s found in project settings" % [setting.name])
 
 func _update_project_settings() -> void:
 	# NOTE: If property value is equal to its initial value, it is saved in project settings, but
@@ -121,9 +101,10 @@ func _update_project_settings() -> void:
 		var setting : Dictionary = _settings[raw_setting_name]
 		if not ProjectSettings.has_setting(setting_name):
 			ProjectSettings.set_setting(setting_name, setting.default)
-		ProjectSettings.set_as_basic(setting_name, setting.basic)
-		ProjectSettings.set_as_internal(setting_name, !(setting.visibility & SettingVisibility.PROJECT_SETTINGS))
+		ProjectSettings.set_as_basic(setting_name, setting.usage & PROPERTY_USAGE_EDITOR_BASIC_SETTING)
+		ProjectSettings.set_as_internal(setting_name, setting.usage & PROPERTY_USAGE_INTERNAL)
 		ProjectSettings.set_initial_value(setting_name, setting.default)
-		ProjectSettings.set_restart_if_changed(setting_name, setting.restart_if_changed)
+		ProjectSettings.set_restart_if_changed(setting_name, setting.usage & PROPERTY_USAGE_RESTART_IF_CHANGED)
+		# TODO: Use add_property_info() to synchronize custom enums and stuff
 	ProjectSettings.save()
 #endregion Private Methods
