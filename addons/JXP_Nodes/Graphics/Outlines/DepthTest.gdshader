@@ -1,16 +1,14 @@
-/*
-Reinvention of ...
-
-// Godot 4.4, Forward+ or Mobile
-// Based quite closely on shader by Digvijaysinh Gohil
-// See https://www.youtube.com/watch?v=-SXJvpbFJ7M&ab_channel=DigvijaysinhGohil
-*/
+#pragma disable_preprocessor
+/**
+ * Reinvention of withoutfail's code. See https://godotshaders.com/shader/depth-based-outline-shader/
+ *
+ * This shader ...
+ */
 shader_type spatial;
 
 render_mode unshaded, fog_disabled;
-/*
-Constants
-*/
+
+// Constants
 const float DELTA = 0.0001f;
 /*
 Uniforms
@@ -22,18 +20,13 @@ uniform float outline_thickness: hint_range(0.0, 2.0, 0.01);
 uniform float step_threshold: hint_range(0.0, 1.0, 0.01);
 uniform vec3 outline_color: source_color;
 
-void vertex() {
-	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
-}
-
-float get_depth(vec2 uv, mat4 inv_projection_mat) {
+float get_depth(in vec2 uv, in mat4 inverse_projection) {
 	float depth = texture(depth_texture, uv).r;
-	return 1.0 / depth;
-	//return 1. / (depth * inv_projection_mat[2].w + inv_projection_mat[3].w);
+	return 1.0 / (depth * inverse_projection[2].w + inverse_projection[3].w);
 }
 
 void fragment() {
-	float thickness = outline_thickness * 0.001;
+	float thickness = outline_thickness * 0.008;
 	float depth = get_depth(SCREEN_UV, INV_PROJECTION_MATRIX);
 
 	// Check the depth in the four cardinal and four diagonal directions to determine whether the

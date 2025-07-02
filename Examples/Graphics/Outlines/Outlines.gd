@@ -52,6 +52,10 @@ func _init() -> void:
 	var couch_packed_scene : PackedScene = load("uid://difkimhpps4kb")
 	var couch_root_node := couch_packed_scene.instantiate()
 	_nodes.add_child(couch_root_node)
+	
+	var oak_tree_packed_scene : PackedScene = load("uid://d2ujkvbepknno")
+	var oak_tree_root_node := oak_tree_packed_scene.instantiate()
+	_nodes.add_child(oak_tree_root_node)
 
 func _ready() -> void:
 	for i in _nodes.get_child_count():
@@ -71,6 +75,9 @@ func _create_array_mesh(primitive_mesh : PrimitiveMesh) -> ArrayMesh:
 func _update_overlay_materials(node : Node) -> void:
 	if node is MeshInstance3D:
 		node.material_overlay = outline_material
+	var i = 0
 	for child in node.get_children():
+		if i == 1: break
+		i += 1
 		_update_overlay_materials(child)
 #endregion Private Methods

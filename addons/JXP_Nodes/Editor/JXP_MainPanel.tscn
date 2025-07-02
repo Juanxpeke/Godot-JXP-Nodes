@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://o3py88cfjdmq"]
+
+[ext_resource type="Script" uid="uid://bob1s2k14fqcb" path="res://addons/JXP_Nodes/Editor/JXP_MainPanel.gd" id="1_t7yx6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t7yx6"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[node name="MainPanel" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_t7yx6")
+script = ExtResource("1_t7yx6")

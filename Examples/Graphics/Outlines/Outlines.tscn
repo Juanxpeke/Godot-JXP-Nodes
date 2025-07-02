@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cmcdmhkc54l3w"]
+[gd_scene load_steps=9 format=3 uid="uid://cmcdmhkc54l3w"]
 
-[ext_resource type="Script" uid="uid://m8b3opx3aelv" path="res://Examples/Graphics/Outlines/Outlines.gd" id="1_54deu"]
+[ext_resource type="Script" uid="uid://m8b3opx3aelv" path="res://Examples/Graphics/Outlines/Outlines.gd" id="1_ussro"]
 [ext_resource type="Material" uid="uid://4y6a0cc654rr" path="res://Assets/Materials/VertexExtrusion.material" id="2_wb0pl"]
+[ext_resource type="Shader" uid="uid://b673v2pswvelu" path="res://addons/JXP_Nodes/Graphics/Depth.gdshader" id="3_wb0pl"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xik1x"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -15,8 +16,14 @@ background_mode = 2
 sky = SubResource("Sky_nee07")
 tonemap_mode = 2
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h7qs5"]
+render_priority = 0
+shader = ExtResource("3_wb0pl")
+
+[sub_resource type="QuadMesh" id="QuadMesh_bk707"]
+
 [node name="Outlines" type="Node3D"]
-script = ExtResource("1_54deu")
+script = ExtResource("1_ussro")
 outline_material = ExtResource("2_wb0pl")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -28,3 +35,9 @@ shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.97395)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.542661, 0, -0.839951, 0, 1, 0, 0.839951, 0, 0.542661, -0.461709, 0, 0.998664)
+visible = false
+material_override = SubResource("ShaderMaterial_h7qs5")
+mesh = SubResource("QuadMesh_bk707")
