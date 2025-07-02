@@ -66,7 +66,7 @@ func _init() -> void:
 	
 	var advanced = CheckButton.new()
 	advanced.text = "Advanced Settings"
-	advanced.toggled.connect(func(toggled_on): )
+	advanced.toggled.connect(_on_advanced_toggled)
 	search_bar.add_child(advanced)
 	
 	var sectioned_inspector := _create_sectioned_inspector()
@@ -89,6 +89,9 @@ func _init() -> void:
 
 #region Private Methods
 #region Callbacks
+func _on_advanced_toggled(toggled_on : bool) -> void:
+	_filter.set_restrict_to_basic(not toggled_on)
+
 func _on_section_selected() -> void:
 	if _sections_tree.get_selected() == null or _sections_tree.get_selected().get_text(0) == "":
 		return
@@ -197,7 +200,7 @@ var _capitalize_string_remaps : Dictionary = {
 	"3d": "3D"
 }
 
-var stop_words : Array[String] = [
+var _stop_words : Array[String] = [
 	"a",
 	"an",
 	"and",
@@ -221,7 +224,7 @@ func _capitalize(text : String) -> String:
 	var parts : PackedStringArray = text.split("_", false);
 	for i in parts.size():
 		# Only capitalize a stop word when its at the beginning or at the end
-		if i > 0 and i < parts.size() - 1 and stop_words.has(parts[i]):
+		if i > 0 and i < parts.size() - 1 and _stop_words.has(parts[i]):
 			continue;
 		
 		if _capitalize_string_remaps.has(parts[i]):

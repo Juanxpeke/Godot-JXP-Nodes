@@ -33,6 +33,13 @@ var _settings := {
 		"usage": PROPERTY_USAGE_INTERNAL,
 		"default": true
 	},
+	"physics_3d/hittables/default_interaction_name": {
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,100,1",
+		"usage": PROPERTY_USAGE_EDITOR,
+		"default": 99
+	},
 	"physics_3d/hittables/outline_shader": {
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_RANGE,
@@ -99,12 +106,21 @@ func _update_project_settings() -> void:
 	for raw_setting_name : StringName in _settings.keys():
 		var setting_name := SETTING_PREFIX + raw_setting_name
 		var setting : Dictionary = _settings[raw_setting_name]
+		
 		if not ProjectSettings.has_setting(setting_name):
 			ProjectSettings.set_setting(setting_name, setting.default)
+		
 		ProjectSettings.set_as_basic(setting_name, setting.usage & PROPERTY_USAGE_EDITOR_BASIC_SETTING)
 		ProjectSettings.set_as_internal(setting_name, setting.usage & PROPERTY_USAGE_INTERNAL)
 		ProjectSettings.set_initial_value(setting_name, setting.default)
 		ProjectSettings.set_restart_if_changed(setting_name, setting.usage & PROPERTY_USAGE_RESTART_IF_CHANGED)
-		# TODO: Use add_property_info() to synchronize custom enums and stuff
+		
+		ProjectSettings.add_property_info({
+			"name": setting_name,
+			"type": setting.type,
+			"hint": setting.hint,
+			"hint_string": setting.hint_string,
+		})
+	
 	ProjectSettings.save()
 #endregion Private Methods

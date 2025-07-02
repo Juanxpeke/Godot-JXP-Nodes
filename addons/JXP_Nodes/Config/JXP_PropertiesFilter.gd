@@ -20,6 +20,8 @@ class_name JXP_PropertiesFilter extends Object
 var _object : Object = null
 var _section : String = ""
 var _allow_sub : bool = false
+# Use this while Godot maintains EditorInspector.set_restrict_to_basic_settings private
+var _restrict_to_basic : bool = true
 #endregion Private Variables
 
 #region On Ready Variables
@@ -50,6 +52,8 @@ func _get_property_list() -> Array:
 			object_property.name = object_property.name.replace(_section + "/", "") # WARNING: It should be replace_first instead of replace
 			if not _allow_sub and object_property.name.contains("/"):
 				continue
+			if _restrict_to_basic and not object_property.usage & PROPERTY_USAGE_EDITOR_BASIC_SETTING:
+				continue
 			properties.push_back(object_property)
 	return properties
 
@@ -73,6 +77,10 @@ func set_section(section : String, allow_sub : bool) -> void:
 ## TODO.
 func set_object(object : Object) -> void:
 	_object = object
+	notify_property_list_changed()
+## TODO.
+func set_restrict_to_basic(value : bool) -> void:
+	_restrict_to_basic = value
 	notify_property_list_changed()
 #endregion Public Methods
 
