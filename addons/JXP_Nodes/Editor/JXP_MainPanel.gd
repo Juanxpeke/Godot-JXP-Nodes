@@ -79,6 +79,11 @@ func _init() -> void:
 	_save_timer.timeout.connect(ProjectSettings.save)
 	add_child(_save_timer)
 	
+	var use_advanced : bool = EditorInterface.get_editor_settings().get_project_metadata("jxp_plugin_settings", "advanced_mode", false)
+
+	if use_advanced:
+		advanced.button_pressed = true
+	
 	_update_sections_tree()
 	
 	_editor_inspector.edit(_filter)
@@ -91,6 +96,7 @@ func _init() -> void:
 #region Callbacks
 func _on_advanced_toggled(toggled_on : bool) -> void:
 	_filter.set_restrict_to_basic(not toggled_on)
+	EditorInterface.get_editor_settings().set_project_metadata("jxp_plugin_settings", "advanced_mode", toggled_on)
 
 func _on_section_selected() -> void:
 	if _sections_tree.get_selected() == null or _sections_tree.get_selected().get_text(0) == "":
