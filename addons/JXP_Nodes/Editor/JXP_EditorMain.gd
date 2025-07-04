@@ -49,30 +49,27 @@ func _init() -> void:
 	
 	_editor_desktop = JXP_EditorDesktop.new()
 	_editor_desktop.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_editor_desktop.visible = true
 	_editor_desktop.app_selected.connect(_on_desktop_app_selected)
 	_editor_app_container.add_child(_editor_desktop)
 	
-	var desktop_button_icon = EditorInterface.get_editor_theme().get_icon("TripleBar", "EditorIcons")
-	_register_toolbar_app(desktop_button_icon, "Home", _editor_desktop)
-	
 	_editor_settings = JXP_EditorSettings.new()
 	_editor_settings.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_editor_settings.visible = false
 	_editor_app_container.add_child(_editor_settings)
-	_editor_desktop.register_app(load("res://icon.svg"), "Settings", _editor_settings)
 	
 	var settings_button_icon = EditorInterface.get_editor_theme().get_icon("GDScript", "EditorIcons")
+	_editor_desktop.register_app(settings_button_icon, "Settings", _editor_settings)
 	_register_toolbar_app(settings_button_icon, "Settings", _editor_settings)
 	
-	var transform_menu := MenuButton.new()
-	transform_menu.flat = false
-	transform_menu.set_theme_type_variation("FlatMenuButton");
-	transform_menu.text = "Transform"
-	transform_menu.switch_on_hover = true
-	transform_menu.shortcut_context = self
-	transform_menu.size_flags_horizontal = Control.SIZE_SHRINK_END | Control.SIZE_EXPAND
-	_editor_toolbar.add_child(transform_menu)
+	var home_button := Button.new()
+	home_button.text = "JXP Nodes"
+	home_button.flat = true
+	home_button.size_flags_horizontal = Control.SIZE_SHRINK_END | Control.SIZE_EXPAND
+	home_button.pressed.connect(_open_app.bind(_editor_desktop))
+	home_button.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("bold", "EditorFonts"))
+	home_button.set_theme_type_variation("FlatMenuButton")
+	_editor_toolbar.add_child(home_button)
+	
+	_open_app(_editor_desktop)
 #endregion Built-in Virtual Methods
 
 #region Public Methods
@@ -91,8 +88,9 @@ func _open_app(control : Control) -> void:
 	
 func _register_toolbar_app(icon_texture : Texture2D, text : String, control : Control) -> void:
 	var app_button := Button.new()
-	app_button.toggle_mode = false
 	app_button.icon = icon_texture
+	app_button.flat = true
+	app_button.toggle_mode = false
 	app_button.tooltip_text = text
 	app_button.pressed.connect(_open_app.bind(control))
 	app_button.set_theme_type_variation("FlatButton")
