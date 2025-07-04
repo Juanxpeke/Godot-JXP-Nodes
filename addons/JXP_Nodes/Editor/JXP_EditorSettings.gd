@@ -1,9 +1,6 @@
 @tool
-class_name JXP_MainPanel extends PanelContainer
-## Main screen panel for the plugin.
-##
-## This panel should be shown in the central part of the editor, next to the [b]2D[/b], [b]3D[/b],
-## [b]Script[/b], [b]Game[/b], and [b]AssetLib[/b] buttons.
+class_name JXP_EditorSettings extends PanelContainer
+## Plugin's settings panel.
 
 # Most of the code in this script follows the logic used in the Godot engine itself, specifically,
 # in the editor_sectioned_inspector.cpp file.
@@ -46,7 +43,6 @@ func _init() -> void:
 	_filter = JXP_PropertiesFilter.new()
 	_filter.set_object(_plugin_settings)
 	
-	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_stylebox_override("panel", _get_panel_style_box())
 	
 	var main_vb = VBoxContainer.new()

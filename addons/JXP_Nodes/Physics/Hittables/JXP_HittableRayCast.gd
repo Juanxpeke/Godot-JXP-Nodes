@@ -1,7 +1,7 @@
 class_name JXP_HittableRayCast extends RayCast3D
 ## TODO
 ##
-## [b]Strong dependencies:[/b] [JXP_HittableComponent].
+## [b]Crashes without:[/b] [JXP_HittableComponent].
 
 #region Signals
 ## TODO
