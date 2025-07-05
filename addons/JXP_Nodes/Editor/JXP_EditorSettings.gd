@@ -112,7 +112,7 @@ func _get_panel_style_box() -> StyleBox:
 	# TODO: Godot Engine defines this as a global style box, that is used in multiple instances
 	var panel_style_box := StyleBoxEmpty.new()
 	panel_style_box.content_margin_left = 4
-	panel_style_box.content_margin_top = 0
+	panel_style_box.content_margin_top = 4
 	panel_style_box.content_margin_right = 4
 	panel_style_box.content_margin_bottom = 4
 	return panel_style_box

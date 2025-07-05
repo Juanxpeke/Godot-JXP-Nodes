@@ -10,8 +10,7 @@ class_name JXP_PluginSettings extends Object
 #endregion Enums
 
 #region Constants
-## Prefix applied to every setting's name.
-const SETTING_PREFIX := "jxp_nodes/"
+const _SETTING_PREFIX := "jxp_nodes/"
 #endregion Constants
 
 #region Public Variables
@@ -70,13 +69,13 @@ func _get_property_list() -> Array:
 # NOTE: Only necessary for the plugin settings interface
 func _get(property : StringName) -> Variant:
 	if _settings.has(property):
-		var setting_name = SETTING_PREFIX + property
+		var setting_name = _SETTING_PREFIX + property
 		return ProjectSettings.get_setting(setting_name, _settings[property].default)
 	return null
 # NOTE: Only necessary for the plugin settings interface
 func _set(property : StringName, value : Variant) -> bool:
 	if _settings.has(property):
-		var setting_name = SETTING_PREFIX + property
+		var setting_name = _SETTING_PREFIX + property
 		ProjectSettings.set_setting(setting_name, value)
 		return true
 	return false
@@ -96,7 +95,7 @@ func _property_get_revert(property : StringName) -> Variant:
 #region Private Methods
 func _remove_deprecated_project_settings() -> void:
 	for setting in ProjectSettings.get_property_list():
-		if setting.name.contains(SETTING_PREFIX) and not setting.name.replace(SETTING_PREFIX, "") in _settings:
+		if setting.name.contains(_SETTING_PREFIX) and not setting.name.replace(_SETTING_PREFIX, "") in _settings:
 			ProjectSettings.set_setting(setting.name, null)
 			push_warning("[JXP Nodes] Removed deprecated setting %s found in project settings" % [setting.name])
 
@@ -104,7 +103,7 @@ func _update_project_settings() -> void:
 	# NOTE: If property value is equal to its initial value, it is saved in project settings, but
 	#       is not written in the project.godot file
 	for raw_setting_name : StringName in _settings.keys():
-		var setting_name := SETTING_PREFIX + raw_setting_name
+		var setting_name := _SETTING_PREFIX + raw_setting_name
 		var setting : Dictionary = _settings[raw_setting_name]
 		
 		if not ProjectSettings.has_setting(setting_name):
