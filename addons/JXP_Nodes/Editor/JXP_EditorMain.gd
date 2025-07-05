@@ -35,8 +35,6 @@ var _editor_settings : JXP_EditorSettings = null
 
 #region Built-in Virtual Methods
 func _init() -> void:
-	add_theme_constant_override("separation", 0)
-	
 	var toolbar_margin := MarginContainer.new()
 	toolbar_margin.add_theme_constant_override("margin_left", 4 * EditorInterface.get_editor_scale())
 	toolbar_margin.add_theme_constant_override("margin_right", 4 * EditorInterface.get_editor_scale())
@@ -98,7 +96,8 @@ func _open_app(control : Control) -> void:
 
 func _register_app(icon_name : String, text : String, control : Control) -> void:
 	control.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_editor_app_container.add_child(control)
+	if not control in _editor_app_container.get_children():
+		_editor_app_container.add_child(control)
 	
 	var app_button := Button.new()
 	app_button.icon = EditorInterface.get_editor_theme().get_icon(icon_name, "EditorIcons")

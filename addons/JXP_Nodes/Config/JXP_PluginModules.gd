@@ -21,28 +21,32 @@ var _modules := {
 		"hint": PROPERTY_HINT_ENUM,
 		"hint_string": "4.4, 4.5, 4.6, 5.1",
 		"usage": PROPERTY_USAGE_EDITOR,
-		"cache": "4.4",
+		"installed": 0,
+		"install": 0,
 	},
 	"rendering_3d/outlines": {
 		"type": TYPE_BOOL,
 		"hint": PROPERTY_HINT_NONE,
 		"hint_string": "",
 		"usage": PROPERTY_USAGE_EDITOR,
-		"cache": false,
+		"installed": false,
+		"install": false,
 	},
 	"physics_3d/hittables": {
 		"type": TYPE_BOOL,
 		"hint": PROPERTY_HINT_NONE,
 		"hint_string": "",
 		"usage": PROPERTY_USAGE_EDITOR,
-		"cache": false
+		"installed": false,
+		"install": false,
 	},
 	"debug/methods_list": {
 		"type": TYPE_BOOL,
 		"hint": PROPERTY_HINT_NONE,
 		"hint_string": "",
 		"usage": PROPERTY_USAGE_EDITOR,
-		"cache": false
+		"installed": false,
+		"install": false,
 	},
 }
 #endregion Private Variables
@@ -66,13 +70,12 @@ func _get_property_list() -> Array:
 # NOTE: Only necessary for the plugin modules installer interface
 func _get(property : StringName) -> Variant:
 	if _modules.has(property):
-		return EditorInterface.get_editor_settings().get_project_metadata("jxp_plugin_settings", property, _modules[property].cache)
+		return _modules[property].cache
 	return null
 # NOTE: Only necessary for the plugin modules installer interface
 func _set(property : StringName, value : Variant) -> bool:
 	if _modules.has(property):
 		_modules[property].cache = value
-		#EditorInterface.get_editor_settings().set_project_metadata("jxp_plugin_settings", property, value)
 		return true
 	return false
 # NOTE: Only necessary for the plugin modules installer interface
@@ -103,7 +106,7 @@ func _update_project_modules() -> void:
 		var module : Dictionary = _modules[module_name]
 		
 		if EditorInterface.get_editor_settings().get_project_metadata("jxp_plugin_settings", module_name, null) == null:
-			EditorInterface.get_editor_settings().set_project_metadata("jxp_plugin_settings", "", _modules[module_name].cache)
+			EditorInterface.get_editor_settings().set_project_metadata("jxp_plugin_settings", module_name, _modules[module_name].cache)
 		else:
 			pass
 #endregion Private Methods

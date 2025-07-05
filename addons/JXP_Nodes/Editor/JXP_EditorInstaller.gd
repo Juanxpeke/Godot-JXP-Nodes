@@ -45,7 +45,9 @@ func _init() -> void:
 	main_vb.add_child(_editor_inspector, true)
 	
 	var _apply_button = Button.new()
-	_apply_button.text = "Save and Reload"
+	_apply_button.text = " ".repeat(8) + "Save and Reload" + " ".repeat(8)
+	_apply_button.disabled = true
+	_apply_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_apply_button.pressed.connect(_plugin_modules.save_cached_values)
 	main_vb.add_child(_apply_button)
 	
@@ -64,7 +66,7 @@ func _get_panel_style_box() -> StyleBox:
 	# TODO: Godot Engine defines this as a global style box, that is used in multiple instances
 	var panel_style_box := StyleBoxEmpty.new()
 	panel_style_box.content_margin_left = 4
-	panel_style_box.content_margin_top = 4
+	panel_style_box.content_margin_top = 0
 	panel_style_box.content_margin_right = 4
 	panel_style_box.content_margin_bottom = 4
 	return panel_style_box
