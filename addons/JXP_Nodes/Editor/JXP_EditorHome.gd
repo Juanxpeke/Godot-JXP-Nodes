@@ -18,6 +18,8 @@ class_name JXP_EditorHome extends PanelContainer
 #endregion Public Variables
 
 #region Private Variables
+var _title : Label
+
 var _bg_color_cache : Color = Color.BLACK
 #endregion Private Variables
 
@@ -26,8 +28,7 @@ var _bg_color_cache : Color = Color.BLACK
 
 #region Built-in Virtual Methods
 func _init() -> void:
-	var accent_color := EditorInterface.get_editor_theme().get_color("accent_color", "Editor")
-	_bg_color_cache = accent_color.lerp(Color.WHITE, 0.33)
+	_bg_color_cache = EditorInterface.get_editor_theme().get_color("dark_color_3", "Editor")
 	
 	var style_box := StyleBoxFlat.new()
 	style_box.bg_color = _bg_color_cache
@@ -36,25 +37,63 @@ func _init() -> void:
 	style_box.content_margin_right = 8
 	style_box.content_margin_bottom = 24
 	add_theme_stylebox_override("panel", style_box)
+	
+	_title = Label.new()
+	_title.text = """
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣶⠶⠶⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⡋⠵⠠⢀⣇⡨⢿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⢀⣤⣴⡶⠿⠿⠛⠋⠀⠀⢀⣠⣤⣥⣴⣟⡓⠶⢦⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣼⡟⠋⠁⠀⠀⠀⠀⠀⠀⠞⣩⣴⣶⣶⣤⣉⢿⣦⠀⠐⠙⠛⠿⢶⣤⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠸⣿⢀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣿⠁⠀⠈⢻⣿⡆⢹⣧⠀⠀⠀⠀⠀⠈⠙⠛⠛⠿⠿⠷⢶⣦⣤⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠻⣿⣄⠀⠀⠀⠀⠀⠀⠀⣿⣿⣦⣀⣀⣤⣿⡏⣰⣿⣶⣤⣠⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠻⠿⣶⣦⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠈⢿⣏⠛⢶⣄⡀⠀⠀⠘⢿⣻⠿⠿⠟⢋⣴⡿⠿⣿⣯⣟⣛⣿⣿⣷⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠙⠷⣦⣌⡉⠛⠿⢶⣤⣉⠙⠛⠛⠛⣿⠁⠸⣧⠾⡍⠛⠛⠳⢶⣿⣿⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣷⣄⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⢶⣤⣀⠉⠛⢦⣄⡀⠹⣦⡀⢀⣴⠇⠀⠀⠀⠀⠙⢿⣭⡽⣿⣶⣦⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣿⣯⡟⡟⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣦⠀⠉⠛⠶⣤⣀⠉⠙⠛⠻⠯⣥⣀⡀⡀⠀⠀⠀⠀⠈⠙⠿⣯⣭⡿⣿⣷⣄⣀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⡿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣷⡄⠀⠀⠀⠈⠉⠓⠒⠒⠂⠀⠀⠈⠉⠓⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⢿⣭⣿⣿⣶⡀⠀⠀⠀⠀⠀⠀⠙⣿⣏⣰⣿⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢤⣀⠀⠈⠙⠻⣿⣿⣦⣄⠀⠀⠀⠀⠀⠈⢻⣿⡃⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢦⡀⠀⠀⠀⠀⠀⠀⠉⠓⢆⡀⠀⠙⠻⣿⣧⣀⠀⠀⠀⠀⠀⠙⣿⡄⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣼⢿⣷⣦⣀⠀⠀⠀⠀⢰⡆⠀⠀⠀⠀⠙⢦⡀⠀⠀⠀⠀⠀⠀⠀⠙⢦⡀⠀⠀⢙⣻⡷⠤⢤⣄⡀⠀⣿⣃⣤⣴⣦⣤⡀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣰⡿⣿⣿⢳⢿⡟⢿⣷⣦⡀⠀⠀⠹⣄⠀⠀⠀⠀⠀⠹⣆⠀⠀⠀⠀⠀⠀⠀⠀⠳⣤⡶⠋⠁⠀⠀⢀⣨⣽⠿⠛⠉⠀⠀⠈⠙⢿⣆
+⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣿⣿⣛⣷⣯⣼⣮⣛⣧⣛⣿⡻⢷⣦⣀⣀⠹⣦⡀⠀⠀⠀⠀⠘⢧⣄⠀⠀⠀⠀⠀⣠⡾⠋⠀⠀⠀⢠⣼⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⢸⣿
+⠀⢠⣾⢿⠻⣷⣾⣿⣿⣻⣬⣵⣿⣥⣿⣿⣺⣾⣿⣹⢿⣿⣿⣮⣿⢿⣿⣮⣙⣦⠀⠀⠀⠀⠀⠹⣷⠀⠀⠀⢰⡟⠀⠀⠀⠀⢠⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⣀⠄⣸⡇
+⠀⠘⢿⣾⣷⠟⠉⢉⣥⡾⠟⣻⣼⠟⠙⣿⡨⠿⣌⠻⠷⠿⠶⣬⣉⣸⡇⣿⡟⠁⠀⠀⠀⠀⠀⢀⣿⠀⠀⢀⣿⠀⠀⠀⠀⢀⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠃⢀⣿⠀
+⠀⠀⠀⠀⢠⣴⢾⢿⣽⣿⠾⠋⠁⠀⠀⠙⢻⡟⠟⣷⣄⠀⠀⠙⠛⠛⣰⡟⠀⠀⠀⠀⠀⠀⠀⣸⣧⣤⡶⢟⡇⠀⠀⠀⠀⠞⠀⠀⠀⠀⠀⠀⠀⠀⣠⡞⠁⠀⣾⡏⠀
+⠀⠀⠀⠀⢻⣧⣮⣿⠟⠀⠀⠀⠀⠀⠀⠀⢹⣯⣿⣿⢧⣶⠶⣆⠀⢀⣿⠁⠀⠀⠀⠀⠀⠀⢀⣿⠀⠀⠀⢸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡾⠋⠀⢀⣾⡟⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⡿⠿⣶⣤⣈⣀⣀⣸⣧⣀⠙⢿⣾⠇⠀⠀⠀⠀⠀⠀⢀⣼⡟⠀⠀⠀⠀⢿⣆⠀⠀⠀⠀⠀⠀⠀⣀⣴⠞⠫⠀⠀⣠⣿⠟⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣷⣤⣤⣤⣉⣉⡉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠃⠀⠀⠀⠀⠈⠻⢷⣤⣤⡤⠶⠶⠛⠉⠶⠀⠀⢀⣴⣿⠋⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⠶⣦⣬⠽⠿⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⠟⠁⠀⠀⢰⣾⠿⠿⢟⣩⣤⣄⡀⠉⠉⣰⠋⠀⠀⣠⣿⠟⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣅⢀⣨⣥⣤⣶⣶⣶⠿⠟⠿⠿⣶⣶⣶⣿⠿⠋⠁⠀⠀⠀⠀⠘⠿⠶⣾⣿⢖⡫⠟⢃⣠⠞⠁⢀⣤⣾⠟⠁⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣤⣴⠾⢛⡽⠞⢉⣤⣴⠏⠀⣠⣴⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣤⣭⡵⠚⣉⣴⣾⡭⠞⢁⣴⡿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡿⠛⠻⠏⣁⣠⣴⡾⠛⢹⣯⡀⣰⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣧⣤⣴⠿⠛⠉⠁⠀⠀⠈⠛⠛⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+	"""
+	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title.add_theme_constant_override("line_spacing", -4)
+	_title.add_theme_color_override("font_color", EditorInterface.get_editor_theme().get_color("accent_color", "Editor"))
+	_title.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("source", "EditorFonts"))
+	_title.add_theme_font_size_override("font_size", 12)
+	add_child(_title)
 
 func _notification(what : int) -> void:
 	if what == NOTIFICATION_THEME_CHANGED:
-		var accent_color := EditorInterface.get_editor_theme().get_color("accent_color", "Editor")
-		var new_bg_color := accent_color.lerp(Color.WHITE, 0.33)
+		var new_bg_color := EditorInterface.get_editor_theme().get_color("dark_color_3", "Editor")
 		
 		if _bg_color_cache != new_bg_color:
 			_bg_color_cache = new_bg_color
-			get_theme_stylebox("panel").bg_color = _bg_color_cache
+			get_theme_stylebox("panel").bg_color = _bg_color_cache # NOTE: this triggers the notification again
+		
+		_title.add_theme_color_override("font_color", EditorInterface.get_editor_theme().get_color("accent_color", "Editor"))
 
 func _draw() -> void:
-	var color := _bg_color_cache.darkened(0.1)
-	var offset_x : float = size.x - floor(size.x / 27) * 27
-	var offset_y : float = size.y - floor(size.y / 27) * 27
+	var color := _bg_color_cache.darkened(0.05)
 	
-	var x := offset_x / 2
-	while x < size.x - 3:
-		var y := offset_y / 2
-		while y < size.y - 3:
+	var x := 16
+	while x <= size.x - 16:
+		var y := 16
+		while y <= size.y - 16:
 			draw_rect(Rect2(x, y, 3, 3), color);
 			y += 24
 		x += 24

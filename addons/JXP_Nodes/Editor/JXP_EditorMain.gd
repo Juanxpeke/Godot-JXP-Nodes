@@ -66,7 +66,7 @@ func _init() -> void:
 	_editor_installer = JXP_EditorInstaller.new()
 	_editor_settings = JXP_EditorSettings.new()
 	
-	_register_app("AssetLib", "Installer", _editor_installer)
+	_register_app("AssetLib", "Modules Installer", _editor_installer)
 	_register_app("GDScript", "Settings", _editor_settings)
 	
 	_open_app(_editor_home)
