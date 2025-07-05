@@ -21,10 +21,12 @@ class_name JXP_EditorMain extends VBoxContainer
 #endregion Public Variables
 
 #region Private Variables
+var _tool_buttons : Array[Button] = []
 var _editor_toolbar : HBoxContainer = null
 var _editor_app_container : VBoxContainer = null
 
-var _editor_desktop : JXP_EditorDesktop = null
+var _editor_home : JXP_EditorHome = null
+var _editor_installer : JXP_EditorInstaller = null
 var _editor_settings : JXP_EditorSettings = null
 #endregion Private Variables
 
@@ -47,52 +49,64 @@ func _init() -> void:
 	_editor_app_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_editor_app_container)
 	
-	_editor_desktop = JXP_EditorDesktop.new()
-	_editor_desktop.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_editor_desktop.app_selected.connect(_on_desktop_app_selected)
-	_editor_app_container.add_child(_editor_desktop)
-	
-	_editor_settings = JXP_EditorSettings.new()
-	_editor_settings.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_editor_app_container.add_child(_editor_settings)
-	
-	var settings_button_icon = EditorInterface.get_editor_theme().get_icon("GDScript", "EditorIcons")
-	_editor_desktop.register_app(settings_button_icon, "Settings", _editor_settings)
-	_register_toolbar_app(settings_button_icon, "Settings", _editor_settings)
+	_editor_home = JXP_EditorHome.new()
+	_editor_home.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_editor_app_container.add_child(_editor_home)
 	
 	var home_button := Button.new()
 	home_button.text = "JXP Nodes"
 	home_button.flat = true
-	home_button.size_flags_horizontal = Control.SIZE_SHRINK_END | Control.SIZE_EXPAND
-	home_button.pressed.connect(_open_app.bind(_editor_desktop))
+	home_button.toggle_mode = true
+	home_button.theme_type_variation = "FlatMenuButton"
+	home_button.pressed.connect(_on_app_button_pressed.bind(_editor_home, 0))
 	home_button.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("bold", "EditorFonts"))
-	home_button.set_theme_type_variation("FlatMenuButton")
 	_editor_toolbar.add_child(home_button)
+	_tool_buttons.push_back(home_button)
 	
-	_open_app(_editor_desktop)
+	_editor_toolbar.add_child(VSeparator.new())
+	
+	_editor_installer = JXP_EditorInstaller.new()
+	_editor_settings = JXP_EditorSettings.new()
+	
+	_register_app("AssetLib", "Installer", _editor_installer)
+	_register_app("GDScript", "Settings", _editor_settings)
+	
+	_open_app(_editor_home)
+
+func _notification(what : int) -> void:
+	if what == NOTIFICATION_THEME_CHANGED:
+		for button : Button in _tool_buttons:
+			if not button.has_meta("icon_name"):
+				continue
+			var icon_name : String = button.get_meta("icon_name")
+			button.icon = EditorInterface.get_editor_theme().get_icon(icon_name, "EditorIcons")
 #endregion Built-in Virtual Methods
 
 #region Public Methods
 #endregion Public Methods
 
 #region Private Methods
-#region Callbacks
-func _on_desktop_app_selected(control : Control) -> void:
+func _on_app_button_pressed(control : Control, tool_button_index : int) -> void:
+	for i in _tool_buttons.size():
+		_tool_buttons[i].button_pressed = (i == tool_button_index)
 	_open_app(control)
-#endregion Callbacks
 
 func _open_app(control : Control) -> void:
 	for child in _editor_app_container.get_children():
 		child.visible = false
 	control.visible = true
+
+func _register_app(icon_name : String, text : String, control : Control) -> void:
+	control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_editor_app_container.add_child(control)
 	
-func _register_toolbar_app(icon_texture : Texture2D, text : String, control : Control) -> void:
 	var app_button := Button.new()
-	app_button.icon = icon_texture
-	app_button.flat = true
-	app_button.toggle_mode = false
+	app_button.icon = EditorInterface.get_editor_theme().get_icon(icon_name, "EditorIcons")
+	app_button.toggle_mode = true
 	app_button.tooltip_text = text
-	app_button.pressed.connect(_open_app.bind(control))
-	app_button.set_theme_type_variation("FlatButton")
+	app_button.theme_type_variation = "FlatButton"
+	app_button.pressed.connect(_on_app_button_pressed.bind(control, _tool_buttons.size()))
+	app_button.set_meta("icon_name", icon_name)
 	_editor_toolbar.add_child(app_button)
+	_tool_buttons.push_back(app_button)
 #endregion Private Methods

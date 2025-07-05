@@ -21,10 +21,10 @@ const SETTING_PREFIX := "jxp_nodes/"
 var _settings := {
 	"installation/godot_version": {
 		"type": TYPE_STRING,
-		"hint": PROPERTY_HINT_NONE,
-		"hint_string": "",
+		"hint": PROPERTY_HINT_ENUM,
+		"hint_string": "4.4, 4.5, 4.6, 5.1",
 		"usage": PROPERTY_USAGE_INTERNAL,
-		"default": "Holaa"
+		"default": "4.4"
 	},
 	"installation/physics/hittables":{
 		"type": TYPE_BOOL,

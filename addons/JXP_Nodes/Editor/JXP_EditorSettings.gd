@@ -28,6 +28,7 @@ var _filter : JXP_PropertiesFilter = null
 var _section_map : Dictionary
 var _selected_section : String
 # Nodes
+var _search_box : LineEdit = null
 var _sections_tree : Tree = null
 var _editor_inspector : EditorInspector = null
 var _save_timer : Timer = null
@@ -53,12 +54,12 @@ func _init() -> void:
 	var search_bar := HBoxContainer.new()
 	main_vb.add_child(search_bar)
 	
-	var search_box := LineEdit.new()
-	search_box.placeholder_text = "Filter Settings"
-	search_box.clear_button_enabled = true
-	search_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	search_box.right_icon = EditorInterface.get_editor_theme().get_icon("Search", "EditorIcons") # TODO: Godot Engine sets this at entered tree and theme changed
-	search_bar.add_child(search_box)
+	_search_box = LineEdit.new()
+	_search_box.placeholder_text = "Filter Settings"
+	_search_box.clear_button_enabled = true
+	_search_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_search_box.right_icon = EditorInterface.get_editor_theme().get_icon("Search", "EditorIcons")
+	search_bar.add_child(_search_box)
 	
 	var advanced = CheckButton.new()
 	advanced.text = "Advanced Settings"
@@ -83,6 +84,10 @@ func _init() -> void:
 	_update_sections_tree()
 	
 	_editor_inspector.edit(_filter)
+
+func _notification(what : int) -> void:
+	if what == NOTIFICATION_THEME_CHANGED:
+		_search_box.right_icon = EditorInterface.get_editor_theme().get_icon("Search", "EditorIcons")
 #endregion Built-in Virtual Methods
 
 #region Public Methods
