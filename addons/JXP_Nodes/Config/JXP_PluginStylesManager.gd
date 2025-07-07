@@ -20,6 +20,7 @@ func _init() -> void:
 #endregion Built-in Virtual Methods
 
 #region Static Methods
+## TODO.
 static func get_thin_panel_style_box() -> StyleBox:
 	if _thin_panel_style_box == null:
 		_thin_panel_style_box = StyleBoxEmpty.new()

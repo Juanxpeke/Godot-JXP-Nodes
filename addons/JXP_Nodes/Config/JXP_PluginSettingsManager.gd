@@ -2,8 +2,7 @@
 class_name JXP_PluginSettingsManager extends Object
 ## Static class that stores all the plugin settings information.
 ##
-## This object is designed to be passed to a [EditorInspector]. It is also synchronized with the 
-## global project settings. See [ProjectSettings].
+## This class is synchronized with the global project settings. See [ProjectSettings].
 ## [b]Note:[/b] This needs to be a tool script, otherwise the static variables won't be initialized.
 #region Signals
 #endregion Signals
@@ -50,6 +49,11 @@ func _init() -> void:
 
 #region Static Methods
 ## TODO.
+static func get_settings_object() -> SettingsObject:
+	if _settings_object == null:
+		_settings_object = SettingsObject.new()
+	return _settings_object
+## TODO.
 static func initialize() -> void:
 	_remove_deprecated_project_settings()
 	_update_project_settings()
@@ -83,11 +87,6 @@ static func _update_project_settings() -> void:
 		})
 	
 	ProjectSettings.save()
-## TODO.
-static func get_settings_object() -> SettingsObject:
-	if _settings_object == null:
-		_settings_object = SettingsObject.new()
-	return _settings_object
 #endregion Static Methods
 
 #region Inner Classes

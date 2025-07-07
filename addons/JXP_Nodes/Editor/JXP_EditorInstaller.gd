@@ -33,6 +33,9 @@ var _releases_request : HTTPRequest = null
 var _current_version_request : HTTPRequest = null
 
 var _plugin_version : Label = null
+var _plugin_update_button : Button = null
+var _releases_request_button : Button = null
+
 var _modules_tree : Tree = null
 var _selected_module_container : PanelContainer = null
 var _selected_module_title : Label = null
@@ -64,7 +67,6 @@ func _init() -> void:
 	var main_vb = VBoxContainer.new()
 	main_vb.alignment = BoxContainer.ALIGNMENT_BEGIN
 	main_vb.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	main_vb.add_theme_constant_override("separation", 0)
 	add_child(main_vb)
 	
 	var top_hb := HBoxContainer.new()
@@ -75,6 +77,17 @@ func _init() -> void:
 	_plugin_version.clip_text = true
 	_plugin_version.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_hb.add_child(_plugin_version)
+	
+	_plugin_update_button = Button.new()
+	_plugin_update_button.text = "Update Plugin"
+	_plugin_update_button.disabled = true
+	_plugin_update_button.tooltip_text = "Update installed modules to the latest version."
+	top_hb.add_child(_plugin_update_button)
+	
+	_releases_request_button = Button.new()
+	_releases_request_button.text = "Refresh"
+	_releases_request_button.tooltip_text = "Refresh the interface with new requested versions."
+	top_hb.add_child(_releases_request_button)
 	
 	var bottom_hb := HBoxContainer.new()
 	bottom_hb.size_flags_vertical = Control.SIZE_EXPAND_FILL
