@@ -25,7 +25,6 @@ const _TEMP_FILE_NAME := "user://jxp_nodes_temp.zip"
 
 #region Private Variables
 # Data
-var _plugin_modules : JXP_PluginModules = null
 var _current_version : _ParsedVersion = null
 var _current_version_info : Dictionary = {}
 var _latest_version_info : Dictionary = {} # NOTE: We won't use https://api.github.com/repos/Juanxpeke/Godot-JXP-Nodes/releases/latest
@@ -45,14 +44,14 @@ var _selected_module_description : Label = null
 
 #region Built-in Virtual Methods
 func _init() -> void:
-	_plugin_modules = JXP_PluginModules.new()
+	JXP_PluginModulesManager.check_installed_state()
 	
 	_current_version = _get_current_version()
 	
 	if not _current_version.valid:
 		pass # TODO: UI and UX
 	
-	add_theme_stylebox_override("panel", _get_panel_style_box())
+	add_theme_stylebox_override("panel", JXP_PluginStylesManager.get_thin_panel_style_box())
 	
 	_releases_request = HTTPRequest.new()
 	_releases_request.request_completed.connect(_on_releases_request_completed)
@@ -148,7 +147,7 @@ func _on_current_version_request_completed(result : int, response_code : int, he
 		return
 	
 	# Save the downloaded ZIP as a temporal file, this ZIP file will be available as long
-	# as the modules installer interface is visible
+	# as the editor is opened
 	var zip_file := FileAccess.open(_TEMP_FILE_NAME, FileAccess.WRITE)
 	zip_file.store_buffer(body)
 	zip_file.close()
@@ -189,25 +188,17 @@ func _install_module(module_path : String) -> void:
 	
 	zip_reader.close()
 	
-	_plugin_modules.check_installed_state()
+	JXP_PluginModulesManager.check_installed_state()
+	
 	_update_modules_tree()
-	#DirAccess.remove_absolute(_TEMP_FILE_NAME)
 
 func _uninstall_module(module_path : String) -> void:
 	var error := OS.move_to_trash(ProjectSettings.globalize_path("res://addons/JXP_Nodes/" + module_path))
-	# TODO: UI and UX
-	_plugin_modules.check_installed_state()
-	_update_modules_tree()
 	
-
-func _get_panel_style_box() -> StyleBox:
-	# TODO: Godot Engine defines this as a global style box, that is used in multiple instances
-	var panel_style_box := StyleBoxEmpty.new()
-	panel_style_box.content_margin_left = 4
-	panel_style_box.content_margin_top = 4
-	panel_style_box.content_margin_right = 4
-	panel_style_box.content_margin_bottom = 4
-	return panel_style_box
+	JXP_PluginModulesManager.check_installed_state()
+	
+	# TODO: UI and UX
+	_update_modules_tree()
 
 func _update_modules_tree() -> void:
 	_modules_tree.clear()
@@ -222,7 +213,7 @@ func _update_modules_tree() -> void:
 	var install_icon := EditorInterface.get_editor_theme().get_icon("AssetLib", "EditorIcons")
 	var uninstall_icon := EditorInterface.get_editor_theme().get_icon("Remove", "EditorIcons")
 	
-	for module in _plugin_modules.get_modules():
+	for module in JXP_PluginModulesManager.get_modules():
 		var category_item : TreeItem
 		if module.category in _category_map:
 			category_item = _category_map[module.category]

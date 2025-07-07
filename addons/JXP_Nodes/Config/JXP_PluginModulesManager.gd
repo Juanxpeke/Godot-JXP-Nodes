@@ -1,7 +1,8 @@
-class_name JXP_PluginModules extends Object
-## Object that stores all the plugin modules information.
-#region Signals
-#endregion Signals
+@tool
+class_name JXP_PluginModulesManager extends Object
+## Static class that stores all the plugin modules information.
+##
+## [b]Note:[/b] This needs to be a tool script, otherwise the static variables won't be initialized.
 
 #region Enums
 #endregion Enums
@@ -9,11 +10,8 @@ class_name JXP_PluginModules extends Object
 #region Constants
 #endregion Constants
 
-#region Public Variables
-#endregion Public Variables
-
-#region Private Variables
-var _modules := {
+#region Static Variables
+static var _modules : Dictionary = {
 	"outlines": {
 		"name": "Outlines",
 		"category": "Rendering 3D",
@@ -36,19 +34,19 @@ var _modules := {
 		"installed": false,
 	},
 }
-#endregion Private Variables
+#endregion Static Variables
 
 #region Built-in Virtual Methods
 func _init() -> void:
-	check_installed_state()
+	push_error("[JXP Nodes] Static class instantiated.")
 #endregion Built-in Virtual Methods
 
-#region Public Methods
+#region Static Methods
 ## TODO.
-func get_modules() -> Array:
+static func get_modules() -> Array:
 	return _modules.values()
 ## TODO.
-func check_installed_state() -> void:
+static func check_installed_state() -> void:
 	for module_name in _modules:
 		var module : Dictionary = _modules[module_name]
 		var module_path : String = module.plugin_relative_path
@@ -59,7 +57,4 @@ func check_installed_state() -> void:
 		else:
 			module.installed = true
 		_modules[module_name] = module
-#endregion Public Methods
-
-#region Private Methods
-#endregion Private Methods
+#endregion Static Methods

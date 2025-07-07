@@ -23,7 +23,6 @@ class_name JXP_EditorSettings extends PanelContainer
 
 #region Private Variables
 # Data
-var _plugin_settings : JXP_PluginSettings = null
 var _filter : JXP_PropertiesFilter = null
 var _section_map : Dictionary
 var _selected_section : String
@@ -39,12 +38,12 @@ var _save_timer : Timer = null
 
 #region Built-in Virtual Methods
 func _init() -> void:
-	_plugin_settings = JXP_PluginSettings.new()
+	JXP_PluginSettingsManager.initialize()
 	
 	_filter = JXP_PropertiesFilter.new()
-	_filter.set_object(_plugin_settings)
+	_filter.set_object(JXP_PluginSettingsManager.get_settings_object())
 	
-	add_theme_stylebox_override("panel", _get_panel_style_box())
+	add_theme_stylebox_override("panel", JXP_PluginStylesManager.get_thin_panel_style_box())
 	
 	var main_vb = VBoxContainer.new()
 	main_vb.alignment = BoxContainer.ALIGNMENT_BEGIN
@@ -108,14 +107,6 @@ func _on_section_selected() -> void:
 func _on_editor_inspector_property_edited(property : String) -> void:
 	_save_timer.start()
 #endregion Callbacks
-func _get_panel_style_box() -> StyleBox:
-	# TODO: Godot Engine defines this as a global style box, that is used in multiple instances
-	var panel_style_box := StyleBoxEmpty.new()
-	panel_style_box.content_margin_left = 4
-	panel_style_box.content_margin_top = 4
-	panel_style_box.content_margin_right = 4
-	panel_style_box.content_margin_bottom = 4
-	return panel_style_box
 #region User Interface
 func _create_sectioned_inspector() -> HSplitContainer:
 	var sectioned_inspector := HSplitContainer.new()
@@ -156,7 +147,7 @@ func _update_sections_tree() -> void:
 	var root := _sections_tree.create_item()
 	_section_map[""] = root
 	
-	for property in _plugin_settings.get_property_list():
+	for property in JXP_PluginSettingsManager.get_settings_object().get_property_list():
 		# TODO: Complete discard property logic
 		if property.usage & PROPERTY_USAGE_CATEGORY:
 			continue
