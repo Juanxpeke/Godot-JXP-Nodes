@@ -25,16 +25,17 @@ const _TEMP_FILE_NAME := "user://jxp_nodes_temp.zip"
 
 #region Private Variables
 # Data
-var _current_version : _ParsedVersion = null
-var _current_version_info : Dictionary = {}
-var _latest_version_info : Dictionary = {} # NOTE: We won't use https://api.github.com/repos/Juanxpeke/Godot-JXP-Nodes/releases/latest
+var _current_version : JXP_PluginInstallationManager.ParsedVersion = null
+var _latest_version : JXP_PluginInstallationManager.ParsedVersion = null
+var _latest_version_url : String # NOTE: We won't use https://api.github.com/repos/Juanxpeke/Godot-JXP-Nodes/releases/latest
 # Nodes
 var _releases_request : HTTPRequest = null
 var _current_version_request : HTTPRequest = null
 
 var _plugin_version : Label = null
 var _plugin_update_button : Button = null
-var _releases_request_button : Button = null
+var _refresh_button : Button = null
+var _refresh_timer : Timer = null
 
 var _modules_tree : Tree = null
 var _selected_module_container : PanelContainer = null
@@ -47,9 +48,10 @@ var _selected_module_description : Label = null
 
 #region Built-in Virtual Methods
 func _init() -> void:
-	JXP_PluginModulesManager.check_installed_state()
+	JXP_PluginInstallationManager.check_installed_state()
 	
-	_current_version = _get_current_version()
+	_current_version = JXP_PluginInstallationManager.get_current_version()
+	_latest_version = _current_version
 	
 	if not _current_version.valid:
 		pass # TODO: UI and UX
@@ -84,10 +86,17 @@ func _init() -> void:
 	_plugin_update_button.tooltip_text = "Update installed modules to the latest version."
 	top_hb.add_child(_plugin_update_button)
 	
-	_releases_request_button = Button.new()
-	_releases_request_button.text = "Refresh"
-	_releases_request_button.tooltip_text = "Refresh the interface with new requested versions."
-	top_hb.add_child(_releases_request_button)
+	_refresh_button = Button.new()
+	_refresh_button.text = "Refresh"
+	_refresh_button.tooltip_text = "Request releases data from Github."
+	_refresh_button.pressed.connect(_on_refresh_button_pressed)
+	top_hb.add_child(_refresh_button)
+	
+	_refresh_timer = Timer.new()
+	_refresh_timer.wait_time = 1.0
+	_refresh_timer.one_shot = true
+	_refresh_timer.timeout.connect(_refresh_button.set_disabled.bind(false))
+	_refresh_button.add_child(_refresh_timer)
 	
 	var bottom_hb := HBoxContainer.new()
 	bottom_hb.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -112,58 +121,69 @@ func _init() -> void:
 	_selected_module_title.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("title", "EditorFonts"))
 	selected_module_vb.add_child(_selected_module_title)
 	
+	_update_top_layout()
 	_update_modules_tree()
 
 func _ready() -> void:
-	# HTTP nodes have to be inside tree to make requests
-	_releases_request.request(_PLUGIN_RELEASES_URL)
+	# HTTP nodes have to be inside tree to make requests. If it's disconnected, it is 99% good to go
+	if _releases_request.get_http_client_status() == HTTPClient.STATUS_DISCONNECTED:
+		_refresh_button.disabled = true
+		_releases_request.request(_PLUGIN_RELEASES_URL)
+		_refresh_timer.start()
 
 func _exit_tree() -> void:
 	DirAccess.remove_absolute(_TEMP_FILE_NAME)
 
 func _notification(what : int) -> void:
 	if what == NOTIFICATION_THEME_CHANGED:
-		_selected_module_container.add_theme_stylebox_override("panel", EditorInterface.get_editor_theme().get_stylebox("panel", "Tree"))
+		_update_top_layout()
 		_update_modules_tree()
+		_selected_module_container.add_theme_stylebox_override("panel", EditorInterface.get_editor_theme().get_stylebox("panel", "Tree"))
 #endregion Built-in Virtual Methods
-
-#region Public Methods
-#endregion Public Methods
 
 #region Private Methods
 #region Callbacks
 func _on_releases_request_completed(result : int, response_code : int, headers : PackedStringArray, body : PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:
-		# TODO: UI and UX
-		return
+		push_warning("[JXP Nodes] Failed to fetch releases data.")
 	
 	# The response should be an array of dictionaries (each for the information of each release)
 	var response : Variant = JSON.parse_string(body.get_string_from_utf8())
-	if typeof(response) != TYPE_ARRAY:
-		# TODO: UI and UX
+	if typeof(response) == TYPE_DICTIONARY and response.has("message") and response["message"].contains("rate limit"):
+		push_warning("GitHub API rate limit exceeded; you'll have to wait at most 60 minutes.")
+		return
+	elif typeof(response) != TYPE_ARRAY:
+		push_warning("Unknown response while trying to fetch releases data.")
 		return
 	
 	var releases : Array = response
 	
 	for release : Dictionary in releases:
-		var release_version := _ParsedVersion.from_string(release.tag_name)
-		if _current_version.is_equal(release_version):
-			_current_version_info = release
-			_current_version_request.request(_current_version_info.zipball_url)
+		var release_version := JXP_PluginInstallationManager.ParsedVersion.from_string(release.tag_name)
+		if release_version.is_equal(_current_version):
+			_current_version_request.request(release.zipball_url)
+		elif release_version.is_greater_than(_latest_version):
+			_latest_version = release_version
+			_latest_version_url = release.zipball_url
 	
 	# UI and UX stuff
-	_plugin_version.text = "Version " + _current_version_info.tag_name.trim_prefix('v')
+	_update_top_layout()
 
 func _on_current_version_request_completed(result : int, response_code : int, headers : PackedStringArray, body : PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:
-		# TODO: UI and UX
-		return
+		push_warning("[JXP Nodes] Failed to fetch current version data.")
 	
 	# Save the downloaded ZIP as a temporal file, this ZIP file will be available as long
 	# as the editor is opened
 	var zip_file := FileAccess.open(_TEMP_FILE_NAME, FileAccess.WRITE)
 	zip_file.store_buffer(body)
 	zip_file.close()
+
+func _on_refresh_button_pressed() -> void:
+	if _releases_request.get_http_client_status() == HTTPClient.STATUS_DISCONNECTED:
+		_refresh_button.disabled = true
+		_releases_request.request(_PLUGIN_RELEASES_URL)
+		_refresh_timer.start()
 
 func _on_modules_tree_button_clicked(item : TreeItem, column : int, id : int, mouse_button_index : int) -> void:
 	var module : Dictionary = item.get_metadata(0)
@@ -173,17 +193,10 @@ func _on_modules_tree_button_clicked(item : TreeItem, column : int, id : int, mo
 		_ModuleButtonIndex.UNINSTALL:
 			_uninstall_module(module.plugin_relative_path)
 #endregion Callbacks
-
-func _get_current_version() -> _ParsedVersion:
-	var plugin_cfg := ConfigFile.new()
-	plugin_cfg.load("res://addons/JXP_Nodes/plugin.cfg")
-	var version : String = plugin_cfg.get_value("plugin", "version", "unknown version")
-	return _ParsedVersion.from_string(version)
-
 func _install_module(module_path : String) -> void:
 	var zip_reader := ZIPReader.new()
 	zip_reader.open(_TEMP_FILE_NAME)
-	
+	# TODO: There was one time in which the ZIP did not exist so this gave an error
 	var release_files_paths : PackedStringArray = zip_reader.get_files()
 	var release_folder_name : String = release_files_paths[0]
 	var release_plugin_path: String = release_folder_name.path_join('addons/JXP_Nodes/')
@@ -201,17 +214,21 @@ func _install_module(module_path : String) -> void:
 	
 	zip_reader.close()
 	
-	JXP_PluginModulesManager.check_installed_state()
+	JXP_PluginInstallationManager.check_installed_state()
 	
 	_update_modules_tree()
 
 func _uninstall_module(module_path : String) -> void:
 	var error := OS.move_to_trash(ProjectSettings.globalize_path("res://addons/JXP_Nodes/" + module_path))
 	
-	JXP_PluginModulesManager.check_installed_state()
+	JXP_PluginInstallationManager.check_installed_state()
 	
 	# TODO: UI and UX
 	_update_modules_tree()
+
+func _update_top_layout() -> void:
+	_plugin_version.text = "Version " + str(_current_version)
+	_plugin_update_button.disabled = not _latest_version.is_greater_than(_current_version)
 
 func _update_modules_tree() -> void:
 	_modules_tree.clear()
@@ -226,7 +243,7 @@ func _update_modules_tree() -> void:
 	var install_icon := EditorInterface.get_editor_theme().get_icon("AssetLib", "EditorIcons")
 	var uninstall_icon := EditorInterface.get_editor_theme().get_icon("Remove", "EditorIcons")
 	
-	for module in JXP_PluginModulesManager.get_modules():
+	for module in JXP_PluginInstallationManager.get_modules():
 		var category_item : TreeItem
 		if module.category in _category_map:
 			category_item = _category_map[module.category]
@@ -250,54 +267,3 @@ func _update_modules_tree() -> void:
 			module_item.add_button(0, install_icon, _ModuleButtonIndex.INSTALL, false, "Install")
 			module_item.add_button(0, uninstall_icon, _ModuleButtonIndex.UNINSTALL, true, "Uninstall")
 #endregion Private Methods
-
-#region Private Inner Classes
-class _ParsedVersion:
-	# TODO: Prerelease and metadata variables and logic
-	var major : int = 0
-	var minor : int = 0
-	var patch : int = 0
-	var valid : bool = false
-	
-	static func from_string(version : String) -> _ParsedVersion:
-		var parsed_version := _ParsedVersion.new()
-		
-		version = version.strip_edges().trim_prefix('v')
-		version = version.substr(0, version.find('('))
-		version = version.to_lower()
-
-		var regex := RegEx.create_from_string(r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")
-		var result : RegExMatch = regex.search(version)
-		if result == null:
-			parsed_version.valid = false
-			return parsed_version
-		else:
-			parsed_version.valid = true
-		
-		if result.get_string("major") != "":
-			parsed_version.major = int(result.get_string("major"))
-		if result.get_string("minor") != "":
-			parsed_version.minor = int(result.get_string("minor"))
-		if result.get_string("patch") != "":
-			parsed_version.patch = int(result.get_string("patch"))
-		
-		return parsed_version
-	
-	func is_equal(parsed_version : _ParsedVersion) -> bool:
-		if major != parsed_version.major:
-			return false
-		if minor != parsed_version.minor:
-			return false
-		if patch != parsed_version.patch:
-			return false
-		return true
-	
-	func is_greater_than(parsed_version : _ParsedVersion) -> bool:
-		if major > parsed_version.major:
-			return true
-		if minor > parsed_version.minor:
-			return true
-		if patch > parsed_version.patch:
-			return true
-		return false
-#endregion Private Inner Classes
