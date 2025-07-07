@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Godot-JXP-Nodes"
-run/main_scene="uid://b57wno7vjsmkw"
+run/main_scene="uid://o3py88cfjdmq"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
