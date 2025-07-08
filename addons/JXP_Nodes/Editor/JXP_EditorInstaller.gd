@@ -33,14 +33,14 @@ var _releases_request : HTTPRequest = null
 var _current_version_request : HTTPRequest = null
 
 var _plugin_version : Label = null
-var _plugin_update_button : Button = null
+var _update_button : Button = null
 var _refresh_button : Button = null
 var _refresh_timer : Timer = null
 
 var _modules_tree : Tree = null
-var _selected_module_container : PanelContainer = null
-var _selected_module_title : Label = null
-var _selected_module_description : Label = null
+var _module_container : PanelContainer = null
+var _module_title : Label = null
+var _module_description : Label = null
 #endregion Private Variables
 
 #region On Ready Variables
@@ -52,9 +52,6 @@ func _init() -> void:
 	
 	_current_version = JXP_PluginInstallationManager.get_current_version()
 	_latest_version = _current_version
-	
-	if not _current_version.valid:
-		pass # TODO: UI and UX
 	
 	add_theme_stylebox_override("panel", JXP_PluginStylesManager.get_thin_panel_style_box())
 	
@@ -75,16 +72,16 @@ func _init() -> void:
 	main_vb.add_child(top_hb)
 	
 	_plugin_version = Label.new()
-	_plugin_version.text = "Requesting plugin version..."
+	_plugin_version.text = "Version " + str(_current_version)
 	_plugin_version.clip_text = true
 	_plugin_version.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_hb.add_child(_plugin_version)
 	
-	_plugin_update_button = Button.new()
-	_plugin_update_button.text = "Update Plugin"
-	_plugin_update_button.disabled = true
-	_plugin_update_button.tooltip_text = "Update installed modules to the latest version."
-	top_hb.add_child(_plugin_update_button)
+	_update_button = Button.new()
+	_update_button.text = "Update Plugin"
+	_update_button.disabled = true
+	_update_button.tooltip_text = "Update installed modules to the latest version."
+	top_hb.add_child(_update_button)
 	
 	_refresh_button = Button.new()
 	_refresh_button.text = "Refresh"
@@ -108,28 +105,27 @@ func _init() -> void:
 	_modules_tree.button_clicked.connect(_on_modules_tree_button_clicked)
 	bottom_hb.add_child(_modules_tree)
 	
-	_selected_module_container = PanelContainer.new()
-	_selected_module_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_selected_module_container.add_theme_stylebox_override("panel", EditorInterface.get_editor_theme().get_stylebox("panel", "Tree"))
-	bottom_hb.add_child(_selected_module_container)
+	_module_container = PanelContainer.new()
+	_module_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_module_container.add_theme_stylebox_override("panel", EditorInterface.get_editor_theme().get_stylebox("panel", "Tree"))
+	bottom_hb.add_child(_module_container)
 	
-	var selected_module_vb := VBoxContainer.new()
-	_selected_module_container.add_child(selected_module_vb)
+	var module_vb := VBoxContainer.new()
+	_module_container.add_child(module_vb)
 	
-	_selected_module_title = Label.new()
-	_selected_module_title.text = "Module"
-	_selected_module_title.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("title", "EditorFonts"))
-	selected_module_vb.add_child(_selected_module_title)
+	_module_title = Label.new()
+	_module_title.text = "Module"
+	_module_title.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("title", "EditorFonts"))
+	module_vb.add_child(_module_title)
 	
-	_update_top_layout()
 	_update_modules_tree()
 
 func _ready() -> void:
 	# HTTP nodes have to be inside tree to make requests. If it's disconnected, it is 99% good to go
 	if _releases_request.get_http_client_status() == HTTPClient.STATUS_DISCONNECTED:
 		_refresh_button.disabled = true
-		_releases_request.request(_PLUGIN_RELEASES_URL)
 		_refresh_timer.start()
+		_releases_request.request(_PLUGIN_RELEASES_URL)
 
 func _exit_tree() -> void:
 	DirAccess.remove_absolute(_TEMP_FILE_NAME)
@@ -138,22 +134,22 @@ func _notification(what : int) -> void:
 	if what == NOTIFICATION_THEME_CHANGED:
 		_update_top_layout()
 		_update_modules_tree()
-		_selected_module_container.add_theme_stylebox_override("panel", EditorInterface.get_editor_theme().get_stylebox("panel", "Tree"))
+		_update_module_layout()
 #endregion Built-in Virtual Methods
 
 #region Private Methods
 #region Callbacks
 func _on_releases_request_completed(result : int, response_code : int, headers : PackedStringArray, body : PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:
-		push_warning("[JXP Nodes] Failed to fetch releases data.")
+		push_error("[JXP Nodes] Failed to fetch releases data.")
 	
 	# The response should be an array of dictionaries (each for the information of each release)
 	var response : Variant = JSON.parse_string(body.get_string_from_utf8())
 	if typeof(response) == TYPE_DICTIONARY and response.has("message") and response["message"].contains("rate limit"):
-		push_warning("GitHub API rate limit exceeded; you'll have to wait at most 60 minutes.")
+		push_error("[JXP Nodes] GitHub API rate limit exceeded; you'll have to wait at most 60 minutes.")
 		return
 	elif typeof(response) != TYPE_ARRAY:
-		push_warning("Unknown response while trying to fetch releases data.")
+		push_error("[JXP Nodes] Unknown response while trying to fetch releases data.")
 		return
 	
 	var releases : Array = response
@@ -171,7 +167,7 @@ func _on_releases_request_completed(result : int, response_code : int, headers :
 
 func _on_current_version_request_completed(result : int, response_code : int, headers : PackedStringArray, body : PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:
-		push_warning("[JXP Nodes] Failed to fetch current version data.")
+		push_error("[JXP Nodes] Failed to fetch current version data.")
 	
 	# Save the downloaded ZIP as a temporal file, this ZIP file will be available as long
 	# as the editor is opened
@@ -182,8 +178,8 @@ func _on_current_version_request_completed(result : int, response_code : int, he
 func _on_refresh_button_pressed() -> void:
 	if _releases_request.get_http_client_status() == HTTPClient.STATUS_DISCONNECTED:
 		_refresh_button.disabled = true
-		_releases_request.request(_PLUGIN_RELEASES_URL)
 		_refresh_timer.start()
+		_releases_request.request(_PLUGIN_RELEASES_URL)
 
 func _on_modules_tree_button_clicked(item : TreeItem, column : int, id : int, mouse_button_index : int) -> void:
 	var module : Dictionary = item.get_metadata(0)
@@ -193,10 +189,15 @@ func _on_modules_tree_button_clicked(item : TreeItem, column : int, id : int, mo
 		_ModuleButtonIndex.UNINSTALL:
 			_uninstall_module(module.plugin_relative_path)
 #endregion Callbacks
+#region Modules
 func _install_module(module_path : String) -> void:
 	var zip_reader := ZIPReader.new()
-	zip_reader.open(_TEMP_FILE_NAME)
-	# TODO: There was one time in which the ZIP did not exist so this gave an error
+	var error := zip_reader.open(_TEMP_FILE_NAME)
+	
+	if error != OK:
+		push_error("[JXP Nodes] Couldn't find current version release files, please refresh.")
+		return
+	
 	var release_files_paths : PackedStringArray = zip_reader.get_files()
 	var release_folder_name : String = release_files_paths[0]
 	var release_plugin_path: String = release_folder_name.path_join('addons/JXP_Nodes/')
@@ -216,6 +217,7 @@ func _install_module(module_path : String) -> void:
 	
 	JXP_PluginInstallationManager.check_installed_state()
 	
+	# UI and UX stuff
 	_update_modules_tree()
 
 func _uninstall_module(module_path : String) -> void:
@@ -223,12 +225,13 @@ func _uninstall_module(module_path : String) -> void:
 	
 	JXP_PluginInstallationManager.check_installed_state()
 	
-	# TODO: UI and UX
+	# UI and UX stuff
 	_update_modules_tree()
-
+#endregion Modules
+#region User Interface
 func _update_top_layout() -> void:
 	_plugin_version.text = "Version " + str(_current_version)
-	_plugin_update_button.disabled = not _latest_version.is_greater_than(_current_version)
+	_update_button.disabled = not _latest_version.is_greater_than(_current_version)
 
 func _update_modules_tree() -> void:
 	_modules_tree.clear()
@@ -266,4 +269,8 @@ func _update_modules_tree() -> void:
 			module_item.set_icon(0, uninstalled_icon)
 			module_item.add_button(0, install_icon, _ModuleButtonIndex.INSTALL, false, "Install")
 			module_item.add_button(0, uninstall_icon, _ModuleButtonIndex.UNINSTALL, true, "Uninstall")
+
+func _update_module_layout() -> void:
+	_module_container.add_theme_stylebox_override("panel", EditorInterface.get_editor_theme().get_stylebox("panel", "Tree"))
+#endregion User Interface
 #endregion Private Methods
